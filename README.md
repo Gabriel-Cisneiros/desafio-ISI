@@ -32,11 +32,33 @@ _A preencher._
 
 ## 3. Instalar e executar
 
-_A preencher._
-
 ### Backend
 
+```text
+# Banco de dados (na raiz do repositório)
+docker compose up -d db
+
+# Backend (na pasta backend)
+cd backend
+cp .env.example .env
+npm ci
+npm run build
+npm run start:prod
+# API em http://localhost:3000 (o script da banca acrescenta /api/v1)
+```
+
+Comandos de qualidade, na pasta `backend`:
+
+```text
+npm test              # testes unitários
+npm run test:e2e      # testes de ponta a ponta (exigem o banco no ar)
+npm run lint          # ESLint
+npm run format:check  # Prettier, só verifica
+```
+
 ### Frontend
+
+_A preencher._
 
 ## 4. Variáveis de ambiente
 
@@ -46,7 +68,7 @@ Cada parte tem o seu arquivo `.env.example`, que deve ser copiado para `.env`.
 
 | Variável | Descrição | Valor de exemplo |
 | --- | --- | --- |
-| `DATABASE_URL` | Conexão com o PostgreSQL | `postgresql://passe:passe@localhost:5433/passe?schema=public` |
+| `DATABASE_URL` | Conexão com o PostgreSQL | `postgresql://passe:passe@localhost:5433/passe` |
 | `PORT` | Porta da API | `3000` |
 | `CORS_ORIGIN` | Origem do frontend liberada no CORS | `http://localhost:3001` |
 
@@ -65,9 +87,37 @@ Cada parte tem o seu arquivo `.env.example`, que deve ser copiado para `.env`.
 ├── backend/             API REST (NestJS, Prisma)
 ├── frontend/            Interface (Next.js, MUI)
 └── docker-compose.yml   Banco de dados PostgreSQL
+
+backend/
+├── prisma/schema.prisma   Schema do banco
+├── src/
+│   ├── main.ts            Inicialização da API
+│   ├── app.setup.ts       Prefixo /api/v1 e CORS
+│   ├── app.module.ts      Módulo raiz
+│   ├── config/            Leitura e validação das variáveis de ambiente
+│   ├── common/            Filtro de erros, pipes de validação e log de requisições
+│   └── prisma/            Acesso ao banco
+└── test/                  Testes de ponta a ponta
 ```
 
 ### Bibliotecas
+
+#### Backend
+
+| Biblioteca | Motivo |
+| --- | --- |
+| NestJS (`@nestjs/common`, `@nestjs/core`, `@nestjs/platform-express`) | Framework da API REST, da stack obrigatória |
+| `reflect-metadata` e `rxjs` | Dependências exigidas pelo NestJS |
+| `@nestjs/config` | Leitura das variáveis de ambiente do `.env`, com validação na inicialização |
+| `class-validator` e `class-transformer` | Validação declarativa dos dados de entrada nos DTOs |
+| Prisma (`prisma` e `@prisma/client`) | ORM, migrations e acesso ao PostgreSQL |
+| Jest, `ts-jest`, `supertest` e `@nestjs/testing` | Testes unitários e de ponta a ponta |
+| ESLint (`eslint`, `typescript-eslint`, `@eslint/js`, `@eslint/eslintrc`, `globals`) | Análise estática do código |
+| Prettier (`prettier`, `eslint-config-prettier`, `eslint-plugin-prettier`) | Formatação do código |
+| TypeScript e ferramentas de build (`typescript`, `ts-node`, `ts-loader`, `tsconfig-paths`, `source-map-support`, `@nestjs/cli`, `@nestjs/schematics`) | Compilação e execução do projeto |
+| Tipos (`@types/node`, `@types/express`, `@types/jest`, `@types/supertest`) | Tipagem das bibliotecas |
+
+#### Frontend
 
 _A preencher._
 
