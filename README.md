@@ -17,18 +17,28 @@ Projeto desenvolvido para o Estudo de Caso da vaga SENAI/PE – CÓD. 237 DESENV
 
 ## 2. Banco de dados
 
-_A preencher._
+O banco é um PostgreSQL 16 em contêiner, e as tabelas são criadas pelas migrations versionadas em `backend/prisma/migrations`. O banco criado por esses passos começa vazio, sem jogadores, clubes, transações nem partidas.
 
 ### Criar o banco
 
 ```text
 # Na raiz do repositório
-docker compose up -d db
+docker compose up -d --wait db
+
+# Na pasta backend
+cd backend
+cp .env.example .env
+npm ci
+npx prisma migrate deploy
 ```
 
 ### Recriar o banco do zero
 
-_A preencher._
+Apaga todas as tabelas e dados e aplica as migrations de novo, deixando o banco vazio. Com o banco no ar, na pasta `backend`:
+
+```text
+npx prisma migrate reset --force
+```
 
 ## 3. Instalar e executar
 
@@ -36,12 +46,13 @@ _A preencher._
 
 ```text
 # Banco de dados (na raiz do repositório)
-docker compose up -d db
+docker compose up -d --wait db
 
 # Backend (na pasta backend)
 cd backend
 cp .env.example .env
 npm ci
+npx prisma migrate deploy
 npm run build
 npm run start:prod
 # API em http://localhost:3000 (o script da banca acrescenta /api/v1)
