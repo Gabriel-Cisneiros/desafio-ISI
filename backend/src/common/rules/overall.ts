@@ -9,6 +9,15 @@ export interface PlayerAttributes {
   physical: number;
 }
 
+export const ATTRIBUTE_NAMES: (keyof PlayerAttributes)[] = [
+  'pace',
+  'shooting',
+  'passing',
+  'dribbling',
+  'defending',
+  'physical',
+];
+
 const WEIGHTS: Record<Position, PlayerAttributes> = {
   [Position.GOL]: {
     pace: 10,
@@ -57,9 +66,7 @@ export function calculateOverall(
   attributes: PlayerAttributes,
 ): number {
   const weights = WEIGHTS[position];
-  const weightedSum = (
-    Object.keys(weights) as (keyof PlayerAttributes)[]
-  ).reduce(
+  const weightedSum = ATTRIBUTE_NAMES.reduce(
     (sum, attribute) => sum + attributes[attribute] * weights[attribute],
     0,
   );

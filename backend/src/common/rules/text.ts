@@ -2,9 +2,23 @@ const CONTROL_CHARACTER = /\p{Cc}/u;
 const EDGE_SPACES = /^ +| +$/g;
 const REPEATED_SPACES = / {2,}/g;
 const ACCENT_MARKS = /\p{Mn}/gu;
+const LETTER = /\p{L}/u;
+const DIGIT = /[0-9]/;
 
 export function hasControlCharacters(value: string): boolean {
   return CONTROL_CHARACTER.test(value);
+}
+
+export function hasDigits(value: string): boolean {
+  return DIGIT.test(value);
+}
+
+export function countCharacters(value: string): number {
+  return Array.from(value).length;
+}
+
+export function countWords(value: string): number {
+  return value.split(' ').filter((part) => LETTER.test(part)).length;
 }
 
 export function normalizeName(value: string): string | undefined {
