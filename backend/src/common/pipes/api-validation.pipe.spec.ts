@@ -4,10 +4,10 @@ import { ApiValidationPipe } from './api-validation.pipe';
 
 class SampleDto {
   @IsString()
-  name: string;
+  name!: string;
 
   @IsInt()
-  age: number;
+  age!: number;
 }
 
 describe('ApiValidationPipe', () => {
@@ -58,4 +58,13 @@ describe('ApiValidationPipe', () => {
     expect(typeof (error as BadRequestException).message).toBe('string');
     expect((error as BadRequestException).message).not.toBe('');
   });
+
+  it.each(['01', '1e3', 'abc'])(
+    'não converte o parâmetro de rota %p para número',
+    async (value) => {
+      await expect(
+        pipe.transform(value, { type: 'param', metatype: Number, data: 'id' }),
+      ).resolves.toBe(value);
+    },
+  );
 });

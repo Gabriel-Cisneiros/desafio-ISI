@@ -15,7 +15,8 @@ function isJsonObject(value: unknown): boolean {
 
 function findFirstMessage(errors: ValidationError[]): string | undefined {
   for (const error of errors) {
-    const [message] = Object.values(error.constraints ?? {});
+    const constraints = error.constraints ?? {};
+    const message = constraints.isDefined ?? Object.values(constraints).at(-1);
     if (message) {
       return message;
     }
@@ -35,7 +36,6 @@ export class ApiValidationPipe extends ValidationPipe {
     super({
       whitelist: true,
       transform: true,
-      stopAtFirstError: true,
       exceptionFactory: (errors) =>
         new BadRequestException(
           findFirstMessage(errors) ?? INVALID_DATA_MESSAGE,
@@ -49,5 +49,9 @@ export class ApiValidationPipe extends ValidationPipe {
     }
 
     return super.transform(value, metadata);
+  }
+
+  protected transformPrimitive(value: unknown): unknown {
+    return value;
   }
 }
