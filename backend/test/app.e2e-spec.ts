@@ -64,4 +64,18 @@ describe('Convenções da API (e2e)', () => {
 
     expect(response.headers['access-control-allow-origin']).toBeUndefined();
   });
+
+  it('serve a documentação do Swagger fora do prefixo da API', async () => {
+    const response = await request(app.getHttpServer())
+      .get('/api/docs-json')
+      .expect(200);
+
+    expect((response.body as { info: { title: string } }).info.title).toBe(
+      'Passe API',
+    );
+  });
+
+  it('mantém o 404 para a documentação dentro do prefixo da API', async () => {
+    await request(app.getHttpServer()).get('/api/v1/docs').expect(404);
+  });
 });

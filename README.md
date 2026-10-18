@@ -6,6 +6,7 @@ Projeto desenvolvido para o Estudo de Caso da vaga SENAI/PE – CÓD. 237 DESENV
 
 - **Origem da API:** `http://localhost:3000`
 - **URL do frontend:** `http://localhost:3001`
+- **Documentação da API (Swagger):** `http://localhost:3000/api/docs`
 
 ## 1. Pré-requisitos
 
@@ -56,6 +57,7 @@ npx prisma migrate deploy
 npm run build
 npm run start:prod
 # API em http://localhost:3000 (o script da banca acrescenta /api/v1)
+# Documentação interativa em http://localhost:3000/api/docs
 ```
 
 Comandos de qualidade, na pasta `backend`:
@@ -106,7 +108,8 @@ backend/
 │   ├── app.setup.ts       Prefixo /api/v1 e CORS
 │   ├── app.module.ts      Módulo raiz
 │   ├── config/            Leitura e validação das variáveis de ambiente
-│   ├── common/            Filtro de erros, pipes de validação e log de requisições
+│   ├── common/            Filtro de erros, pipes de validação, log de requisições, regras de negócio e enums
+│   ├── docs/              Configuração da documentação Swagger
 │   └── prisma/            Acesso ao banco
 └── test/                  Testes de ponta a ponta
 ```
@@ -121,7 +124,8 @@ backend/
 | `reflect-metadata` e `rxjs` | Dependências exigidas pelo NestJS |
 | `@nestjs/config` | Leitura das variáveis de ambiente do `.env`, com validação na inicialização |
 | `class-validator` e `class-transformer` | Validação declarativa dos dados de entrada nos DTOs |
-| Prisma (`prisma` e `@prisma/client`) | ORM, migrations e acesso ao PostgreSQL |
+| Prisma (`prisma` e `@prisma/client`) | ORM, migrations e acesso ao PostgreSQL; o `Decimal` do Prisma também é usado nos cálculos em moedas, sem erro de ponto flutuante |
+| `@nestjs/swagger` | Documentação interativa da API (OpenAPI), gerada a partir dos controladores e DTOs |
 | Jest, `ts-jest`, `supertest` e `@nestjs/testing` | Testes unitários e de ponta a ponta |
 | ESLint (`eslint`, `typescript-eslint`, `@eslint/js`, `@eslint/eslintrc`, `globals`) | Análise estática do código |
 | Prettier (`prettier`, `eslint-config-prettier`, `eslint-plugin-prettier`) | Formatação do código |
