@@ -21,3 +21,14 @@ export const playerSelect = {
 export type PlayerRecord = Prisma.PlayerGetPayload<{
   select: typeof playerSelect;
 }>;
+
+export const playerStateSelect = {
+  age: true,
+  position: true,
+  condition: true,
+  clubId: true,
+} satisfies Prisma.PlayerSelect;
+
+export type PlayerState = Prisma.PlayerGetPayload<{
+  select: typeof playerStateSelect;
+}>;

@@ -1,6 +1,7 @@
-import { Body, Controller, Get, Param, Post, Res } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Put, Res } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
+  ApiConflictResponse,
   ApiCreatedResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
@@ -15,6 +16,7 @@ import { ParseIdPipe } from '../common/pipes/parse-id.pipe';
 import { ApiTag } from '../docs/swagger.setup';
 import { CreatePlayerDto } from './dto/create-player.dto';
 import { PlayerResponseDto } from './dto/player-response.dto';
+import { UpdatePlayerDto } from './dto/update-player.dto';
 import { PlayerResponse } from './interfaces/player.interface';
 import { PlayersService } from './players.service';
 
@@ -67,5 +69,37 @@ export class PlayersController {
   })
   findOne(@Param('id', ParseIdPipe) id: number): Promise<PlayerResponse> {
     return this.playersService.findOne(id);
+  }
+
+  @Put(':id')
+  @ApiOperation({
+    summary: 'Edita um jogador',
+    description:
+      'Muda só o nome, a posição, a agilidade e a idade. Indicadores, potencial e valor base continuam os do cadastro; o overall é recalculado pela posição.',
+  })
+  @ApiParam({ name: 'id', description: 'Id do jogador.', example: 4 })
+  @ApiOkResponse({
+    description: 'Jogador atualizado.',
+    type: PlayerResponseDto,
+  })
+  @ApiBadRequestResponse({
+    description:
+      'Corpo inválido, campo obrigatório ausente, tipo errado ou valor fora dos limites.',
+    type: ErrorResponseDto,
+  })
+  @ApiNotFoundResponse({
+    description: 'Jogador inexistente ou excluído.',
+    type: ErrorResponseDto,
+  })
+  @ApiConflictResponse({
+    description:
+      'Idade menor que a atual ou mudança de posição de jogador com clube.',
+    type: ErrorResponseDto,
+  })
+  update(
+    @Param('id', ParseIdPipe) id: number,
+    @Body() dto: UpdatePlayerDto,
+  ): Promise<PlayerResponse> {
+    return this.playersService.update(id, dto);
   }
 }

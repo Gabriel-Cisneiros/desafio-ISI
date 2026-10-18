@@ -29,6 +29,7 @@ describe('Jogadores (e2e)', () => {
   let app: INestApplication<App>;
   let prisma: PrismaService;
   const createdIds: number[] = [];
+  const createdClubIds: number[] = [];
 
   beforeAll(async () => {
     const moduleFixture = await Test.createTestingModule({
@@ -42,9 +43,34 @@ describe('Jogadores (e2e)', () => {
   });
 
   afterAll(async () => {
+    await prisma.lineupEntry.deleteMany({
+      where: { playerId: { in: createdIds } },
+    });
     await prisma.player.deleteMany({ where: { id: { in: createdIds } } });
+    await prisma.club.deleteMany({ where: { id: { in: createdClubIds } } });
     await app.close();
   });
+
+  async function createClubWith(playerId: number): Promise<number> {
+    const acronym = Array.from({ length: 3 }, () =>
+      String.fromCharCode(65 + Math.floor(Math.random() * 26)),
+    ).join('');
+    const name = `Clube Teste ${acronym}`;
+    const club = await prisma.club.create({
+      data: { name, normalizedName: name.toLowerCase(), acronym },
+    });
+    createdClubIds.push(club.id);
+
+    await prisma.player.update({
+      where: { id: playerId },
+      data: { clubId: club.id },
+    });
+    return club.id;
+  }
+
+  function updatePlayer(id: number, body: object) {
+    return request(app.getHttpServer()).put(`/api/v1/players/${id}`).send(body);
+  }
 
   async function createPlayer(body: object | string) {
     const response = await request(app.getHttpServer())
@@ -220,5 +246,88 @@ describe('Jogadores (e2e)', () => {
         );
       },
     );
+  });
+
+  describe('PUT /players/:id', () => {
+    const daviMelo = {
+      ...meiaLua,
+      name: 'Davi Melo',
+      position: 'ATA',
+      agility: 60,
+      age: 22,
+    };
+    const edit = { name: 'Davi Melo', position: 'MEI', agility: 70, age: 23 };
+
+    it('muda só nome, posição, agilidade e idade e recalcula o overall', async () => {
+      const created = (await createPlayer(daviMelo)).body as PlayerResponse;
+
+      const response = await updatePlayer(created.id, {
+        ...edit,
+        pace: 1,
+        potential: 99,
+        base_value: 1,
+        condition: 'DOENTE',
+        club_id: 1,
+      }).expect(200);
+
+      expect(response.body).toEqual({
+        ...created,
+        ...edit,
+        overall: 75,
+        market_value: created.base_value,
+      });
+    });
+
+    it('aceita idade 33 sem mudar o potencial', async () => {
+      const created = (await createPlayer(meiaLua)).body as PlayerResponse;
+
+      const response = await updatePlayer(created.id, {
+        ...edit,
+        age: 33,
+      }).expect(200);
+
+      expect((response.body as PlayerResponse).potential).toBe(86);
+    });
+
+    it('mantém a posição de jogador com clube quando ela não muda', async () => {
+      const created = (await createPlayer(meiaLua)).body as PlayerResponse;
+      await createClubWith(created.id);
+
+      await updatePlayer(created.id, { ...edit, age: 25 }).expect(200);
+    });
+
+    it.each([
+      ['campo obrigatório ausente', { age: undefined }],
+      ['agilidade acima de 85 com 35 anos', { age: 35, agility: 86 }],
+      ['posição em minúsculas', { position: 'mei' }],
+    ])('recusa com 400: %s', async (_, overrides) => {
+      const created = (await createPlayer(meiaLua)).body as PlayerResponse;
+
+      await updatePlayer(created.id, { ...edit, ...overrides }).expect(400);
+    });
+
+    it('recusa com 409 idade menor que a atual', async () => {
+      const created = (await createPlayer(meiaLua)).body as PlayerResponse;
+
+      const response = await updatePlayer(created.id, {
+        ...edit,
+        age: 24,
+      }).expect(409);
+
+      expect((response.body as ErrorBody).message).toBe(
+        'A idade não pode ser menor que a atual (25).',
+      );
+    });
+
+    it('recusa com 409 mudança de posição de jogador com clube', async () => {
+      const created = (await createPlayer(meiaLua)).body as PlayerResponse;
+      await createClubWith(created.id);
+
+      await updatePlayer(created.id, { ...edit, position: 'ATA' }).expect(409);
+    });
+
+    it('responde 404 para jogador inexistente', async () => {
+      await updatePlayer(2147483647, edit).expect(404);
+    });
   });
 });

@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { Condition } from '../common/enums/condition.enum';
 import { Position } from '../common/enums/position.enum';
 import { calculateBaseValue } from '../common/rules/base-value';
@@ -6,8 +10,14 @@ import { calculateMarketValue } from '../common/rules/market-value';
 import { calculateOverall } from '../common/rules/overall';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreatePlayerDto } from './dto/create-player.dto';
+import { UpdatePlayerDto } from './dto/update-player.dto';
 import { PlayerResponse } from './interfaces/player.interface';
-import { PlayerRecord, playerSelect } from './players.select';
+import {
+  PlayerRecord,
+  PlayerState,
+  playerSelect,
+  playerStateSelect,
+} from './players.select';
 
 const PLAYER_NOT_FOUND = 'Jogador não encontrado.';
 
@@ -55,6 +65,50 @@ export class PlayersService {
     }
 
     return this.toResponse(player);
+  }
+
+  async update(id: number, dto: UpdatePlayerDto): Promise<PlayerResponse> {
+    const current = await this.findState(id);
+
+    if (dto.age < current.age) {
+      throw new ConflictException(
+        `A idade não pode ser menor que a atual (${current.age}).`,
+      );
+    }
+    if (
+      current.clubId !== null &&
+      dto.position !== (current.position as Position)
+    ) {
+      throw new ConflictException(
+        'Jogador com clube não pode mudar de posição.',
+      );
+    }
+
+    const player = await this.prisma.player.update({
+      where: { id },
+      data: {
+        name: dto.name,
+        position: dto.position,
+        agility: dto.agility,
+        age: dto.age,
+      },
+      select: playerSelect,
+    });
+
+    return this.toResponse(player);
+  }
+
+  private async findState(id: number): Promise<PlayerState> {
+    const player = await this.prisma.player.findFirst({
+      where: { id, deletedAt: null },
+      select: playerStateSelect,
+    });
+
+    if (!player) {
+      throw new NotFoundException(PLAYER_NOT_FOUND);
+    }
+
+    return player;
   }
 
   private toResponse(player: PlayerRecord): PlayerResponse {
