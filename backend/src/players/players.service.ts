@@ -10,6 +10,7 @@ import { calculateMarketValue } from '../common/rules/market-value';
 import { calculateOverall } from '../common/rules/overall';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreatePlayerDto } from './dto/create-player.dto';
+import { UpdateConditionDto } from './dto/update-condition.dto';
 import { UpdatePlayerDto } from './dto/update-player.dto';
 import { PlayerResponse } from './interfaces/player.interface';
 import {
@@ -93,6 +94,40 @@ export class PlayersService {
         age: dto.age,
       },
       select: playerSelect,
+    });
+
+    return this.toResponse(player);
+  }
+
+  async updateCondition(
+    id: number,
+    dto: UpdateConditionDto,
+  ): Promise<PlayerResponse> {
+    const current = await this.findState(id);
+    const currentCondition = current.condition as Condition;
+
+    if (
+      currentCondition === Condition.DOENTE &&
+      dto.condition === Condition.APTO
+    ) {
+      throw new ConflictException(
+        'Jogador DOENTE não pode passar direto para APTO. Passe antes por MAL_CONDICIONADO.',
+      );
+    }
+    if (currentCondition === dto.condition) {
+      return this.findOne(id);
+    }
+
+    const player = await this.prisma.$transaction(async (tx) => {
+      if (dto.condition === Condition.DOENTE) {
+        await tx.lineupEntry.deleteMany({ where: { playerId: id } });
+      }
+
+      return tx.player.update({
+        where: { id },
+        data: { condition: dto.condition },
+        select: playerSelect,
+      });
     });
 
     return this.toResponse(player);

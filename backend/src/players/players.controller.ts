@@ -1,4 +1,13 @@
-import { Body, Controller, Get, Param, Post, Put, Res } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Put,
+  Res,
+} from '@nestjs/common';
 import {
   ApiBadRequestResponse,
   ApiConflictResponse,
@@ -16,6 +25,7 @@ import { ParseIdPipe } from '../common/pipes/parse-id.pipe';
 import { ApiTag } from '../docs/swagger.setup';
 import { CreatePlayerDto } from './dto/create-player.dto';
 import { PlayerResponseDto } from './dto/player-response.dto';
+import { UpdateConditionDto } from './dto/update-condition.dto';
 import { UpdatePlayerDto } from './dto/update-player.dto';
 import { PlayerResponse } from './interfaces/player.interface';
 import { PlayersService } from './players.service';
@@ -101,5 +111,35 @@ export class PlayersController {
     @Body() dto: UpdatePlayerDto,
   ): Promise<PlayerResponse> {
     return this.playersService.update(id, dto);
+  }
+
+  @Patch(':id/condition')
+  @ApiOperation({
+    summary: 'Altera a condição física de um jogador',
+    description:
+      'Enviar a condição atual é aceito, sem mudança. Ao passar a DOENTE, o jogador sai da escalação do clube. Outros campos do corpo são ignorados.',
+  })
+  @ApiParam({ name: 'id', description: 'Id do jogador.', example: 2 })
+  @ApiOkResponse({
+    description: 'Jogador atualizado.',
+    type: PlayerResponseDto,
+  })
+  @ApiBadRequestResponse({
+    description: 'Condição ausente, nula ou fora da lista.',
+    type: ErrorResponseDto,
+  })
+  @ApiNotFoundResponse({
+    description: 'Jogador inexistente ou excluído.',
+    type: ErrorResponseDto,
+  })
+  @ApiConflictResponse({
+    description: 'Jogador DOENTE indo direto para APTO.',
+    type: ErrorResponseDto,
+  })
+  updateCondition(
+    @Param('id', ParseIdPipe) id: number,
+    @Body() dto: UpdateConditionDto,
+  ): Promise<PlayerResponse> {
+    return this.playersService.updateCondition(id, dto);
   }
 }

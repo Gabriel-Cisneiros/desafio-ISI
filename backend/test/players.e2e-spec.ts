@@ -330,4 +330,107 @@ describe('Jogadores (e2e)', () => {
       await updatePlayer(2147483647, edit).expect(404);
     });
   });
+
+  describe('PATCH /players/:id/condition', () => {
+    function changeCondition(id: number, body: object) {
+      return request(app.getHttpServer())
+        .patch(`/api/v1/players/${id}/condition`)
+        .send(body);
+    }
+
+    it('altera a condição e recalcula o valor de mercado', async () => {
+      const created = (await createPlayer(meiaLua)).body as PlayerResponse;
+
+      const response = await changeCondition(created.id, {
+        condition: 'MAL_CONDICIONADO',
+      }).expect(200);
+
+      expect(response.body).toEqual({
+        ...created,
+        condition: 'MAL_CONDICIONADO',
+        market_value: 37,
+      });
+    });
+
+    it('aceita a condição atual sem mudar o jogador', async () => {
+      const created = (await createPlayer(meiaLua)).body as PlayerResponse;
+      const before = await prisma.player.findUniqueOrThrow({
+        where: { id: created.id },
+      });
+
+      const response = await changeCondition(created.id, {
+        condition: 'APTO',
+      }).expect(200);
+
+      const after = await prisma.player.findUniqueOrThrow({
+        where: { id: created.id },
+      });
+      expect(response.body).toEqual(created);
+      expect(after.updatedAt).toEqual(before.updatedAt);
+    });
+
+    it('ignora outros campos do corpo', async () => {
+      const created = (await createPlayer(meiaLua)).body as PlayerResponse;
+
+      const response = await changeCondition(created.id, {
+        condition: 'DOENTE',
+        name: 'Outro Nome',
+        age: 40,
+      }).expect(200);
+
+      expect(response.body).toMatchObject({ name: 'Meia Lua', age: 25 });
+    });
+
+    it('recusa com 409 de DOENTE direto para APTO', async () => {
+      const created = (await createPlayer(meiaLua)).body as PlayerResponse;
+      await changeCondition(created.id, { condition: 'DOENTE' }).expect(200);
+
+      await changeCondition(created.id, { condition: 'APTO' }).expect(409);
+    });
+
+    it('aceita de DOENTE para MAL_CONDICIONADO e depois para APTO', async () => {
+      const created = (await createPlayer(meiaLua)).body as PlayerResponse;
+      await changeCondition(created.id, { condition: 'DOENTE' }).expect(200);
+
+      await changeCondition(created.id, {
+        condition: 'MAL_CONDICIONADO',
+      }).expect(200);
+      await changeCondition(created.id, { condition: 'APTO' }).expect(200);
+    });
+
+    it('tira o jogador da escalação ao passar a DOENTE', async () => {
+      const created = (await createPlayer(meiaLua)).body as PlayerResponse;
+      const clubId = await createClubWith(created.id);
+      await prisma.lineupEntry.create({
+        data: { clubId, playerId: created.id },
+      });
+
+      await changeCondition(created.id, {
+        condition: 'MAL_CONDICIONADO',
+      }).expect(200);
+      expect(
+        await prisma.lineupEntry.count({ where: { playerId: created.id } }),
+      ).toBe(1);
+
+      await changeCondition(created.id, { condition: 'DOENTE' }).expect(200);
+      expect(
+        await prisma.lineupEntry.count({ where: { playerId: created.id } }),
+      ).toBe(0);
+    });
+
+    it.each([
+      ['ausente', {}],
+      ['nula', { condition: null }],
+      ['em minúsculas', { condition: 'doente' }],
+      ['fora da lista', { condition: 'MACHUCADO' }],
+    ])('recusa com 400 a condição %s', async (_, body) => {
+      const created = (await createPlayer(meiaLua)).body as PlayerResponse;
+
+      await changeCondition(created.id, body).expect(400);
+    });
+
+    it('responde 404 para jogador inexistente', async () => {
+      await changeCondition(2147483647, { condition: 'APTO' }).expect(404);
+    });
+  });
 });
