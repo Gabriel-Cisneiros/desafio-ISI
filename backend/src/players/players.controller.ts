@@ -1,7 +1,10 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
+  HttpCode,
+  HttpStatus,
   Param,
   Patch,
   Post,
@@ -12,6 +15,7 @@ import {
   ApiBadRequestResponse,
   ApiConflictResponse,
   ApiCreatedResponse,
+  ApiNoContentResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
@@ -141,5 +145,26 @@ export class PlayersController {
     @Body() dto: UpdateConditionDto,
   ): Promise<PlayerResponse> {
     return this.playersService.updateCondition(id, dto);
+  }
+
+  @Delete(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({
+    summary: 'Exclui um jogador livre',
+    description:
+      'Exclusão lógica: o jogador é marcado como excluído e passa a contar como inexistente. Transações e partidas antigas continuam mostrando o jogador como foi gravado.',
+  })
+  @ApiParam({ name: 'id', description: 'Id do jogador.', example: 9 })
+  @ApiNoContentResponse({ description: 'Jogador excluído, sem corpo.' })
+  @ApiNotFoundResponse({
+    description: 'Jogador inexistente ou já excluído.',
+    type: ErrorResponseDto,
+  })
+  @ApiConflictResponse({
+    description: 'Jogador que está num clube.',
+    type: ErrorResponseDto,
+  })
+  remove(@Param('id', ParseIdPipe) id: number): Promise<void> {
+    return this.playersService.remove(id);
   }
 }

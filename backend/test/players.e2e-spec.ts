@@ -433,4 +433,51 @@ describe('Jogadores (e2e)', () => {
       await changeCondition(2147483647, { condition: 'APTO' }).expect(404);
     });
   });
+
+  describe('DELETE /players/:id', () => {
+    function deletePlayer(id: number) {
+      return request(app.getHttpServer()).delete(`/api/v1/players/${id}`);
+    }
+
+    it('marca o jogador como excluído sem apagar do banco', async () => {
+      const created = (await createPlayer(meiaLua)).body as PlayerResponse;
+
+      const response = await deletePlayer(created.id).expect(204);
+
+      expect(response.text).toBe('');
+      const row = await prisma.player.findUnique({ where: { id: created.id } });
+      expect(row?.deletedAt).toBeInstanceOf(Date);
+    });
+
+    it('passa a responder 404 em todos os endpoints do jogador', async () => {
+      const created = (await createPlayer(meiaLua)).body as PlayerResponse;
+      await deletePlayer(created.id).expect(204);
+      const server = app.getHttpServer();
+
+      await request(server).get(`/api/v1/players/${created.id}`).expect(404);
+      await request(server)
+        .put(`/api/v1/players/${created.id}`)
+        .send({ name: 'Meia Lua', position: 'MEI', agility: 85, age: 25 })
+        .expect(404);
+      await request(server)
+        .patch(`/api/v1/players/${created.id}/condition`)
+        .send({ condition: 'DOENTE' })
+        .expect(404);
+      await deletePlayer(created.id).expect(404);
+    });
+
+    it('recusa com 409 jogador que está num clube', async () => {
+      const created = (await createPlayer(meiaLua)).body as PlayerResponse;
+      await createClubWith(created.id);
+
+      await deletePlayer(created.id).expect(409);
+
+      const row = await prisma.player.findUnique({ where: { id: created.id } });
+      expect(row?.deletedAt).toBeNull();
+    });
+
+    it('responde 404 para jogador inexistente', async () => {
+      await deletePlayer(2147483647).expect(404);
+    });
+  });
 });

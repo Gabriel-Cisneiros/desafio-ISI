@@ -1,26 +1,20 @@
-import {
-  ConflictException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { Condition } from '../common/enums/condition.enum';
 import { Position } from '../common/enums/position.enum';
 import { calculateBaseValue } from '../common/rules/base-value';
 import { calculateMarketValue } from '../common/rules/market-value';
 import { calculateOverall } from '../common/rules/overall';
 import { PrismaService } from '../prisma/prisma.service';
+import { findActivePlayerOrThrow } from './active-player';
 import { CreatePlayerDto } from './dto/create-player.dto';
 import { UpdateConditionDto } from './dto/update-condition.dto';
 import { UpdatePlayerDto } from './dto/update-player.dto';
 import { PlayerResponse } from './interfaces/player.interface';
 import {
   PlayerRecord,
-  PlayerState,
   playerSelect,
   playerStateSelect,
 } from './players.select';
-
-const PLAYER_NOT_FOUND = 'Jogador não encontrado.';
 
 @Injectable()
 export class PlayersService {
@@ -56,20 +50,16 @@ export class PlayersService {
   }
 
   async findOne(id: number): Promise<PlayerResponse> {
-    const player = await this.prisma.player.findFirst({
-      where: { id, deletedAt: null },
-      select: playerSelect,
-    });
-
-    if (!player) {
-      throw new NotFoundException(PLAYER_NOT_FOUND);
-    }
-
+    const player = await findActivePlayerOrThrow(this.prisma, id, playerSelect);
     return this.toResponse(player);
   }
 
   async update(id: number, dto: UpdatePlayerDto): Promise<PlayerResponse> {
-    const current = await this.findState(id);
+    const current = await findActivePlayerOrThrow(
+      this.prisma,
+      id,
+      playerStateSelect,
+    );
 
     if (dto.age < current.age) {
       throw new ConflictException(
@@ -103,7 +93,11 @@ export class PlayersService {
     id: number,
     dto: UpdateConditionDto,
   ): Promise<PlayerResponse> {
-    const current = await this.findState(id);
+    const current = await findActivePlayerOrThrow(
+      this.prisma,
+      id,
+      playerStateSelect,
+    );
     const currentCondition = current.condition as Condition;
 
     if (
@@ -133,17 +127,23 @@ export class PlayersService {
     return this.toResponse(player);
   }
 
-  private async findState(id: number): Promise<PlayerState> {
-    const player = await this.prisma.player.findFirst({
-      where: { id, deletedAt: null },
-      select: playerStateSelect,
-    });
+  async remove(id: number): Promise<void> {
+    const player = await findActivePlayerOrThrow(
+      this.prisma,
+      id,
+      playerStateSelect,
+    );
 
-    if (!player) {
-      throw new NotFoundException(PLAYER_NOT_FOUND);
+    if (player.clubId !== null) {
+      throw new ConflictException(
+        'Jogador com clube não pode ser excluído. Venda o jogador antes.',
+      );
     }
 
-    return player;
+    await this.prisma.player.update({
+      where: { id },
+      data: { deletedAt: new Date() },
+    });
   }
 
   private toResponse(player: PlayerRecord): PlayerResponse {

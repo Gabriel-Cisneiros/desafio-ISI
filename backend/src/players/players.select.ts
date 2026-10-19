@@ -28,7 +28,3 @@ export const playerStateSelect = {
   condition: true,
   clubId: true,
 } satisfies Prisma.PlayerSelect;
-
-export type PlayerState = Prisma.PlayerGetPayload<{
-  select: typeof playerStateSelect;
-}>;
