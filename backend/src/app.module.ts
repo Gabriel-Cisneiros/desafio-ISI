@@ -5,6 +5,7 @@ import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 import { RequestLoggerMiddleware } from './common/middleware/request-logger.middleware';
 import { ApiValidationPipe } from './common/pipes/api-validation.pipe';
 import { validateEnv } from './config/env.validation';
+import { ClubsModule } from './clubs/clubs.module';
 import { PlayersModule } from './players/players.module';
 import { PrismaModule } from './prisma/prisma.module';
 
@@ -13,6 +14,7 @@ import { PrismaModule } from './prisma/prisma.module';
     ConfigModule.forRoot({ isGlobal: true, validate: validateEnv }),
     PrismaModule,
     PlayersModule,
+    ClubsModule,
   ],
   providers: [
     { provide: APP_PIPE, useClass: ApiValidationPipe },
