@@ -28,3 +28,12 @@ export const playerStateSelect = {
   condition: true,
   clubId: true,
 } satisfies Prisma.PlayerSelect;
+
+export const playerMarketSelect = {
+  name: true,
+  baseValue: true,
+  condition: true,
+  agility: true,
+  age: true,
+  clubId: true,
+} satisfies Prisma.PlayerSelect;
