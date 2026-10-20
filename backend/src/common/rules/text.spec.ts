@@ -3,6 +3,7 @@ import {
   compareNames,
   containsIgnoringCaseAndAccents,
   hasControlCharacters,
+  hasOnlyNameCharacters,
   normalizeName,
   removeAccents,
 } from './text';
@@ -100,4 +101,22 @@ describe('containsIgnoringCaseAndAccents', () => {
   it('não encontra texto que não está no nome', () => {
     expect(containsIgnoringCaseAndAccents('Meia Lua', 'sol')).toBe(false);
   });
+});
+
+describe('hasOnlyNameCharacters', () => {
+  it.each([
+    'Águias FC',
+    'São Paulo F.C.',
+    'Mangue-Futebol Clube',
+    'A\u0301guias FC',
+  ])('aceita %j', (value) => {
+    expect(hasOnlyNameCharacters(value)).toBe(true);
+  });
+
+  it.each(['Clube 10', 'Clube & Cia', "Clube D'Ouro", 'Clube_FC'])(
+    'recusa %j',
+    (value) => {
+      expect(hasOnlyNameCharacters(value)).toBe(false);
+    },
+  );
 });

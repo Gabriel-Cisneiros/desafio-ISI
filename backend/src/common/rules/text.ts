@@ -4,6 +4,7 @@ const REPEATED_SPACES = / {2,}/g;
 const ACCENT_MARKS = /\p{Mn}/gu;
 const LETTER = /\p{L}/u;
 const DIGIT = /[0-9]/;
+const NAME_CHARACTERS = /^[\p{L}\p{M} .-]+$/u;
 
 export function hasControlCharacters(value: string): boolean {
   return CONTROL_CHARACTER.test(value);
@@ -11,6 +12,10 @@ export function hasControlCharacters(value: string): boolean {
 
 export function hasDigits(value: string): boolean {
   return DIGIT.test(value);
+}
+
+export function hasOnlyNameCharacters(value: string): boolean {
+  return NAME_CHARACTERS.test(value);
 }
 
 export function countCharacters(value: string): number {

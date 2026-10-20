@@ -5,10 +5,11 @@ import {
   countWords,
   hasControlCharacters,
   hasDigits,
+  hasOnlyNameCharacters,
   normalizeName,
 } from '../rules/text';
 
-function registerStringRule(
+export function registerStringRule(
   name: string,
   test: (value: string) => boolean,
   message: (property: string) => string,
@@ -87,6 +88,18 @@ export function HasNoDigits(options?: ValidationOptions): PropertyDecorator {
     'hasNoDigits',
     (value) => !hasDigits(value),
     (property) => `O campo ${property} não pode ter números.`,
+    options,
+  );
+}
+
+export function HasOnlyNameCharacters(
+  options?: ValidationOptions,
+): PropertyDecorator {
+  return registerStringRule(
+    'hasOnlyNameCharacters',
+    hasOnlyNameCharacters,
+    (property) =>
+      `O campo ${property} só pode ter letras (com ou sem acento), espaços, hífen e ponto.`,
     options,
   );
 }
