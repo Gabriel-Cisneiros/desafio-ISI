@@ -3,8 +3,12 @@ import { Prisma } from '@prisma/client';
 
 export const PLAYER_NOT_FOUND = 'Jogador não encontrado.';
 
+export const ACTIVE_PLAYER = {
+  deletedAt: null,
+} satisfies Prisma.PlayerWhereInput;
+
 export function activePlayerWhere(id: number): Prisma.PlayerWhereInput {
-  return { id, deletedAt: null };
+  return { ...ACTIVE_PLAYER, id };
 }
 
 export async function findActivePlayerOrThrow<S extends Prisma.PlayerSelect>(

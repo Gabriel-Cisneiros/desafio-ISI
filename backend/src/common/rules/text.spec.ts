@@ -1,6 +1,7 @@
 import {
   compareByNameAndId,
   compareNames,
+  containsIgnoringCaseAndAccents,
   hasControlCharacters,
   normalizeName,
   removeAccents,
@@ -83,5 +84,20 @@ describe('compareByNameAndId', () => {
     expect([...clubs].sort(compareByNameAndId).map((club) => club.id)).toEqual([
       1, 2, 3,
     ]);
+  });
+});
+
+describe('containsIgnoringCaseAndAccents', () => {
+  it.each([
+    ['João Silva', 'joao'],
+    ['Meia Lua', 'LUA'],
+    ['Conceição', 'ceicao'],
+    ['Meia Lua', 'ia l'],
+  ])('%j contém %j', (text, search) => {
+    expect(containsIgnoringCaseAndAccents(text, search)).toBe(true);
+  });
+
+  it('não encontra texto que não está no nome', () => {
+    expect(containsIgnoringCaseAndAccents('Meia Lua', 'sol')).toBe(false);
   });
 });

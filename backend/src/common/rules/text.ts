@@ -32,10 +32,19 @@ export function removeAccents(value: string): string {
   return value.normalize('NFD').replace(ACCENT_MARKS, '');
 }
 
+function foldText(value: string): string {
+  return removeAccents(value.toLowerCase());
+}
+
+export function containsIgnoringCaseAndAccents(
+  text: string,
+  search: string,
+): boolean {
+  return foldText(text).includes(foldText(search));
+}
+
 function sortKey(name: string): number[] {
-  return Array.from(removeAccents(name.toLowerCase()), (char) =>
-    char.codePointAt(0)!,
-  );
+  return Array.from(foldText(name), (char) => char.codePointAt(0)!);
 }
 
 export function compareNames(a: string, b: string): number {

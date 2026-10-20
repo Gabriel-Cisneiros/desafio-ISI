@@ -4,6 +4,8 @@ import request from 'supertest';
 import { App } from 'supertest/types';
 import { AppModule } from '../src/app.module';
 import { setupApp } from '../src/app.setup';
+import { Paginated } from '../src/common/interfaces/paginated.interface';
+import { compareNames } from '../src/common/rules/text';
 import { PlayerResponse } from '../src/players/interfaces/player.interface';
 import { PrismaService } from '../src/prisma/prisma.service';
 
@@ -478,6 +480,212 @@ describe('Jogadores (e2e)', () => {
 
     it('responde 404 para jogador inexistente', async () => {
       await deletePlayer(2147483647).expect(404);
+    });
+  });
+
+  describe('GET /players', () => {
+    const token = Array.from({ length: 8 }, () =>
+      String.fromCharCode(97 + Math.floor(Math.random() * 26)),
+    ).join('');
+    const surname = token[0].toUpperCase() + token.slice(1);
+    const ids: Record<string, number> = {};
+    const values: Record<string, number> = {};
+    const ages: Record<string, number> = {};
+
+    function list(query: Record<string, string | number | boolean>) {
+      return request(app.getHttpServer()).get('/api/v1/players').query(query);
+    }
+
+    async function listNames(query: Record<string, string | number | boolean>) {
+      const response = await list({ search: token, ...query }).expect(200);
+      return (response.body as Paginated<PlayerResponse>).data.map(
+        ({ name }) => name.split(' ')[0],
+      );
+    }
+
+    beforeAll(async () => {
+      const fixtures = [
+        ['Ana', 'ATA', 18],
+        ['Bruno', 'MEI', 22],
+        ['Conceição', 'GOL', 27],
+        ['Davi', 'LAT', 33],
+        ['Érica', 'ZAG', 40],
+      ] as const;
+
+      for (const [first, position, age] of fixtures) {
+        const player = (
+          await createPlayer({
+            ...meiaLua,
+            name: `${first} ${surname}`,
+            position,
+            age,
+            potential: 82,
+          })
+        ).body as PlayerResponse;
+        ids[first] = player.id;
+        values[first] = player.market_value;
+        ages[first] = age;
+      }
+
+      const clubId = await createClubWith(ids.Bruno);
+      await prisma.player.update({
+        where: { id: ids.Davi },
+        data: { clubId },
+      });
+      await prisma.player.update({
+        where: { id: ids['Érica'] },
+        data: { condition: 'DOENTE' },
+      });
+      values['Érica'] = (
+        (
+          await request(app.getHttpServer()).get(
+            `/api/v1/players/${ids['Érica']}`,
+          )
+        ).body as PlayerResponse
+      ).market_value;
+    });
+
+    it('ordena pelo nome por padrão e pagina com o meta correto', async () => {
+      const response = await list({ search: token, limit: 2, page: 2 }).expect(
+        200,
+      );
+      const body = response.body as Paginated<PlayerResponse>;
+
+      expect(body.data.map(({ id }) => id)).toEqual([
+        ids['Conceição'],
+        ids.Davi,
+      ]);
+      expect(body.meta).toEqual({
+        page: 2,
+        limit: 2,
+        total_items: 5,
+        total_pages: 3,
+      });
+    });
+
+    it('responde 200 com data vazio para página além da última', async () => {
+      const response = await list({ search: token, page: 4, limit: 2 }).expect(
+        200,
+      );
+
+      expect(response.body).toEqual({
+        data: [],
+        meta: { page: 4, limit: 2, total_items: 5, total_pages: 3 },
+      });
+    });
+
+    it('devolve meta zerado quando nada atende aos filtros', async () => {
+      const response = await list({
+        search: token,
+        position: 'GOL',
+        free: false,
+      });
+
+      expect(response.body).toEqual({
+        data: [],
+        meta: { page: 1, limit: 10, total_items: 0, total_pages: 0 },
+      });
+    });
+
+    it('busca sem diferenciar maiúsculas, minúsculas e acentos', async () => {
+      const response = await list({
+        search: `CONCEICAO ${token}`,
+      }).expect(200);
+
+      expect(
+        (response.body as Paginated<PlayerResponse>).data.map(({ id }) => id),
+      ).toEqual([ids['Conceição']]);
+    });
+
+    it.each([
+      [{ position: 'GOL' }, ['Conceição']],
+      [{ condition: 'DOENTE' }, ['Érica']],
+      [{ free: true }, ['Ana', 'Conceição', 'Érica']],
+      [{ free: false }, ['Bruno', 'Davi']],
+      [{ min_age: 27 }, ['Conceição', 'Davi', 'Érica']],
+      [{ max_age: 22 }, ['Ana', 'Bruno']],
+      [{ min_age: 22, max_age: 33, position: 'MEI' }, ['Bruno']],
+    ])('filtra por %j', async (query, expected) => {
+      expect(await listNames(query)).toEqual(expected);
+    });
+
+    it('filtra pelo clube', async () => {
+      const clubId = (
+        await prisma.player.findUniqueOrThrow({ where: { id: ids.Bruno } })
+      ).clubId!;
+
+      expect(await listNames({ club_id: clubId })).toEqual(['Bruno', 'Davi']);
+      expect(await listNames({ club_id: clubId, free: false })).toEqual([
+        'Bruno',
+        'Davi',
+      ]);
+    });
+
+    it('filtra pela faixa de valor de mercado, inclusiva', async () => {
+      const value = values.Ana;
+      const names = await listNames({ min_value: value, max_value: value });
+
+      expect(names).toContain('Ana');
+      expect(names.every((name) => values[name] === value)).toBe(true);
+    });
+
+    it('ordena pelo valor de mercado, com empate pelo nome', async () => {
+      const expected = Object.keys(values).sort(
+        (a, b) => values[b] - values[a] || compareNames(a, b),
+      );
+
+      expect(await listNames({ sort: 'value_desc' })).toEqual(expected);
+    });
+
+    it('ordena pela posição na ordem GOL, ZAG, LAT, MEI, ATA', async () => {
+      expect(await listNames({ sort: 'position' })).toEqual([
+        'Conceição',
+        'Érica',
+        'Davi',
+        'Bruno',
+        'Ana',
+      ]);
+    });
+
+    it('usa o segundo critério para desempatar o primeiro', async () => {
+      expect(await listNames({ sort: 'value_asc,age_desc' })).toEqual(
+        Object.keys(values).sort(
+          (a, b) =>
+            values[a] - values[b] || ages[b] - ages[a] || compareNames(a, b),
+        ),
+      );
+    });
+
+    it('deixa jogadores excluídos de fora', async () => {
+      const created = (
+        await createPlayer({ ...meiaLua, name: `Fabio ${surname}` })
+      ).body as PlayerResponse;
+      await prisma.player.update({
+        where: { id: created.id },
+        data: { deletedAt: new Date() },
+      });
+
+      expect(await listNames({})).not.toContain('Fabio');
+    });
+
+    it('ignora parâmetros desconhecidos', async () => {
+      expect(await listNames({ ordem: 'nome' })).toHaveLength(5);
+    });
+
+    it('responde 404 para clube inexistente', async () => {
+      await list({ club_id: 2147483647 }).expect(404);
+    });
+
+    it.each([
+      ['position vazia', { position: '' }],
+      ['page com zero à esquerda', { page: '01' }],
+      ['free=true com club_id', { free: true, club_id: 1 }],
+      ['min_value maior que max_value', { min_value: 20, max_value: 10 }],
+      ['sort em maiúsculas', { sort: 'POSITION' }],
+    ])('recusa com 400: %s', async (_, query) => {
+      const response = await list(query).expect(400);
+
+      expect((response.body as ErrorBody).message).toEqual(expect.any(String));
     });
   });
 });

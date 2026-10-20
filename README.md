@@ -140,6 +140,7 @@ _A preencher._
 
 - O PostgreSQL do Docker Compose é publicado na porta `5433` da máquina, para não conflitar com um PostgreSQL já instalado na porta padrão.
 - A API usa a porta `3000` e o frontend, a `3001`.
+- Em `GET /players`, os filtros de posição, condição, clube, idade e exclusão são aplicados no banco. A busca pelo nome, a faixa de valor de mercado, a ordenação e a paginação são feitas na API, depois de calcular o valor de mercado de cada jogador com as mesmas funções usadas nas respostas. Assim a fórmula do valor de mercado existe num só lugar, e a busca sem acentos não depende de extensões do PostgreSQL.
 
 ## 7. Funcionalidades não implementadas
 

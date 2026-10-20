@@ -1,15 +1,22 @@
 import { ConflictException, Injectable } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
+import { ensureClubExists } from '../clubs/existing-club';
 import { Condition } from '../common/enums/condition.enum';
 import { Position } from '../common/enums/position.enum';
 import { calculateBaseValue } from '../common/rules/base-value';
 import { calculateMarketValue } from '../common/rules/market-value';
 import { calculateOverall } from '../common/rules/overall';
+import { containsIgnoringCaseAndAccents } from '../common/rules/text';
+import { Paginated } from '../common/interfaces/paginated.interface';
+import { paginate } from '../common/pagination';
 import { PrismaService } from '../prisma/prisma.service';
-import { findActivePlayerOrThrow } from './active-player';
+import { ACTIVE_PLAYER, findActivePlayerOrThrow } from './active-player';
 import { CreatePlayerDto } from './dto/create-player.dto';
+import { ListPlayersQueryDto } from './dto/list-players-query.dto';
 import { UpdateConditionDto } from './dto/update-condition.dto';
 import { UpdatePlayerDto } from './dto/update-player.dto';
 import { PlayerResponse } from './interfaces/player.interface';
+import { DEFAULT_PLAYER_SORT, comparePlayersBy } from './player-sort';
 import {
   PlayerRecord,
   playerSelect,
@@ -47,6 +54,32 @@ export class PlayersService {
     });
 
     return this.toResponse(player);
+  }
+
+  async list(query: ListPlayersQueryDto): Promise<Paginated<PlayerResponse>> {
+    if (query.club_id !== undefined) {
+      await ensureClubExists(this.prisma, query.club_id);
+    }
+
+    const records = await this.prisma.player.findMany({
+      where: this.listWhere(query),
+      select: playerSelect,
+    });
+
+    const players = records
+      .map((record) => this.toResponse(record))
+      .filter(
+        (player) =>
+          (query.search === undefined ||
+            containsIgnoringCaseAndAccents(player.name, query.search)) &&
+          (query.min_value === undefined ||
+            player.market_value >= query.min_value) &&
+          (query.max_value === undefined ||
+            player.market_value <= query.max_value),
+      )
+      .sort(comparePlayersBy(query.sort ?? DEFAULT_PLAYER_SORT));
+
+    return paginate(players, query.page ?? 1, query.limit ?? 10);
   }
 
   async findOne(id: number): Promise<PlayerResponse> {
@@ -144,6 +177,19 @@ export class PlayersService {
       where: { id },
       data: { deletedAt: new Date() },
     });
+  }
+
+  private listWhere(query: ListPlayersQueryDto): Prisma.PlayerWhereInput {
+    const freeFilter =
+      query.free === undefined ? undefined : query.free ? null : { not: null };
+
+    return {
+      ...ACTIVE_PLAYER,
+      position: query.position,
+      condition: query.condition,
+      clubId: query.club_id ?? freeFilter,
+      age: { gte: query.min_age, lte: query.max_age },
+    };
   }
 
   private toResponse(player: PlayerRecord): PlayerResponse {

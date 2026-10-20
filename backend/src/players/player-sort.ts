@@ -1,3 +1,7 @@
+import { Position } from '../common/enums/position.enum';
+import { compareByNameAndId, compareNames } from '../common/rules/text';
+import { PlayerResponse } from './interfaces/player.interface';
+
 export enum PlayerSort {
   NAME = 'name',
   VALUE_ASC = 'value_asc',
@@ -32,4 +36,30 @@ export function parsePlayerSort(value: string): PlayerSort[] | undefined {
 
   const fields = new Set(criteria.map((criterion) => SORT_FIELD[criterion]));
   return fields.size === criteria.length ? criteria : undefined;
+}
+
+const POSITION_ORDER = Object.values(Position);
+
+type PlayerComparator = (a: PlayerResponse, b: PlayerResponse) => number;
+
+const COMPARATORS: Record<PlayerSort, PlayerComparator> = {
+  [PlayerSort.NAME]: (a, b) => compareNames(a.name, b.name),
+  [PlayerSort.VALUE_ASC]: (a, b) => a.market_value - b.market_value,
+  [PlayerSort.VALUE_DESC]: (a, b) => b.market_value - a.market_value,
+  [PlayerSort.AGE_ASC]: (a, b) => a.age - b.age,
+  [PlayerSort.AGE_DESC]: (a, b) => b.age - a.age,
+  [PlayerSort.POSITION]: (a, b) =>
+    POSITION_ORDER.indexOf(a.position) - POSITION_ORDER.indexOf(b.position),
+};
+
+export function comparePlayersBy(sort: PlayerSort[]): PlayerComparator {
+  return (a, b) => {
+    for (const criterion of sort) {
+      const result = COMPARATORS[criterion](a, b);
+      if (result !== 0) {
+        return result;
+      }
+    }
+    return compareByNameAndId(a, b);
+  };
 }

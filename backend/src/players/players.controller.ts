@@ -9,6 +9,7 @@ import {
   Patch,
   Post,
   Put,
+  Query,
   Res,
 } from '@nestjs/common';
 import {
@@ -28,9 +29,12 @@ import { ErrorResponseDto } from '../common/dto/error-response.dto';
 import { ParseIdPipe } from '../common/pipes/parse-id.pipe';
 import { ApiTag } from '../docs/swagger.setup';
 import { CreatePlayerDto } from './dto/create-player.dto';
+import { ListPlayersQueryDto } from './dto/list-players-query.dto';
+import { PlayerListResponseDto } from './dto/player-list-response.dto';
 import { PlayerResponseDto } from './dto/player-response.dto';
 import { UpdateConditionDto } from './dto/update-condition.dto';
 import { UpdatePlayerDto } from './dto/update-player.dto';
+import { Paginated } from '../common/interfaces/paginated.interface';
 import { PlayerResponse } from './interfaces/player.interface';
 import { PlayersService } from './players.service';
 
@@ -67,6 +71,28 @@ export class PlayersController {
     const player = await this.playersService.create(dto);
     response.location(`/${API_PREFIX}/players/${player.id}`);
     return player;
+  }
+
+  @Get()
+  @ApiOperation({
+    summary: 'Lista os jogadores',
+    description:
+      'Lista paginada, com busca pelo nome, filtros combináveis e ordenação. Filtros e ordenação por valor usam o valor de mercado. Jogadores excluídos ficam de fora.',
+  })
+  @ApiOkResponse({ type: PlayerListResponseDto })
+  @ApiBadRequestResponse({
+    description:
+      'Parâmetro vazio, fora do formato ou da lista aceita, ou combinação contraditória.',
+    type: ErrorResponseDto,
+  })
+  @ApiNotFoundResponse({
+    description: 'Clube do filtro club_id inexistente.',
+    type: ErrorResponseDto,
+  })
+  list(
+    @Query() query: ListPlayersQueryDto,
+  ): Promise<Paginated<PlayerResponse>> {
+    return this.playersService.list(query);
   }
 
   @Get(':id')
