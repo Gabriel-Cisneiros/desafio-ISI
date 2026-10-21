@@ -9,6 +9,17 @@ export interface ClubResponse {
   net_worth: number;
 }
 
+export interface SquadContract {
+  purchase_value: number;
+  loyalty_until: string;
+  remaining_days: number;
+  penalty_rate: number;
+}
+
+export interface SquadPlayerResponse extends PlayerResponse {
+  contract: SquadContract | null;
+}
+
 export interface ClubDetailsResponse extends ClubResponse {
-  players: PlayerResponse[];
+  players: SquadPlayerResponse[];
 }

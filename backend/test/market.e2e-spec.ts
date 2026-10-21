@@ -144,6 +144,26 @@ describe('Mercado (e2e)', () => {
       .get(`/api/v1/players/${player.id}`)
       .expect(200);
     expect((updated.body as PlayerResponse).club_id).toBe(club.id);
+
+    const clubDetails = await request(app.getHttpServer())
+      .get(`/api/v1/clubs/${club.id}`)
+      .expect(200);
+    expect(clubDetails.body).toMatchObject({
+      cash: 261.15,
+      squad_value: 37,
+      net_worth: 298.15,
+      players: [
+        {
+          id: player.id,
+          contract: {
+            purchase_value: 37,
+            loyalty_until: loyaltyUntil.replace('-03:00', ':00-03:00'),
+            remaining_days: 120,
+            penalty_rate: 10,
+          },
+        },
+      ],
+    });
   });
 
   it('recusa com 409 jogador que não está livre', async () => {

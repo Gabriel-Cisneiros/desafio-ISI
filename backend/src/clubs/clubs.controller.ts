@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Res } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query, Res } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
   ApiConflictResponse,
@@ -20,6 +20,7 @@ import {
   ClubResponseDto,
 } from './dto/club-response.dto';
 import { CreateClubDto } from './dto/create-club.dto';
+import { ListClubsQueryDto } from './dto/list-clubs-query.dto';
 import { ClubDetailsResponse, ClubResponse } from './interfaces/club.interface';
 
 @ApiTags(ApiTag.CLUBS)
@@ -66,11 +67,15 @@ export class ClubsController {
   @ApiOperation({
     summary: 'Lista os clubes',
     description:
-      'Clubes em ordem alfabética pelo nome, com empate desfeito pelo id, sem o elenco.',
+      'Clubes sem o elenco, ordenados pelo nome (padrão) ou pelo patrimônio calculado, com empate desfeito pelo nome e depois pelo id.',
   })
   @ApiOkResponse({ type: [ClubResponseDto] })
-  list(): Promise<ClubResponse[]> {
-    return this.clubsService.list();
+  @ApiBadRequestResponse({
+    description: 'sort fora da lista ou com mais de um valor.',
+    type: ErrorResponseDto,
+  })
+  list(@Query() query: ListClubsQueryDto): Promise<ClubResponse[]> {
+    return this.clubsService.list(query);
   }
 
   @Get(':id')

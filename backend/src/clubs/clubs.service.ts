@@ -3,11 +3,12 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { compareByNameAndId } from '../common/rules/text';
 import { PrismaService } from '../prisma/prisma.service';
 import { toClubDetailsResponse, toClubResponse } from './club.mapper';
-import { clubSelect } from './clubs.select';
+import { ClubSort, compareClubsBy } from './club-sort';
+import { clubDetailsSelect, clubSelect } from './clubs.select';
 import { CreateClubDto } from './dto/create-club.dto';
+import { ListClubsQueryDto } from './dto/list-clubs-query.dto';
 import { CLUB_NOT_FOUND } from './existing-club';
 import { ClubDetailsResponse, ClubResponse } from './interfaces/club.interface';
 
@@ -44,21 +45,23 @@ export class ClubsService {
     });
   }
 
-  async list(): Promise<ClubResponse[]> {
+  async list(query: ListClubsQueryDto): Promise<ClubResponse[]> {
     const clubs = await this.prisma.club.findMany({ select: clubSelect });
-    return clubs.map(toClubResponse).sort(compareByNameAndId);
+    return clubs
+      .map(toClubResponse)
+      .sort(compareClubsBy(query.sort ?? ClubSort.NAME));
   }
 
   async findOne(id: number): Promise<ClubDetailsResponse> {
     const club = await this.prisma.club.findUnique({
       where: { id },
-      select: clubSelect,
+      select: clubDetailsSelect,
     });
 
     if (!club) {
       throw new NotFoundException(CLUB_NOT_FOUND);
     }
 
-    return toClubDetailsResponse(club);
+    return toClubDetailsResponse(club, new Date());
   }
 }

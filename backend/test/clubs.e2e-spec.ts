@@ -214,6 +214,45 @@ describe('Clubes (e2e)', () => {
     });
   });
 
+  describe('GET /clubs?sort', () => {
+    it('ordena pelo patrimônio, com empate pelo nome', async () => {
+      const created = [
+        (await createClub(randomClub())).body as ClubResponse,
+        (await createClub(randomClub())).body as ClubResponse,
+        (await createClub(randomClub())).body as ClubResponse,
+      ];
+      await prisma.club.update({
+        where: { id: created[0].id },
+        data: { cash: 500 },
+      });
+      await prisma.club.update({
+        where: { id: created[2].id },
+        data: { cash: 100 },
+      });
+      const ids = created.map((club) => club.id);
+
+      const response = await request(app.getHttpServer())
+        .get('/api/v1/clubs')
+        .query({ sort: 'net_worth_desc' })
+        .expect(200);
+      const ours = (response.body as ClubResponse[]).filter((club) =>
+        ids.includes(club.id),
+      );
+
+      expect(ours.map((club) => club.id)).toEqual([ids[0], ids[1], ids[2]]);
+    });
+
+    it.each(['NAME', 'name,net_worth_asc', 'patrimonio', ''])(
+      'recusa com 400 o sort %j',
+      async (sort) => {
+        await request(app.getHttpServer())
+          .get('/api/v1/clubs')
+          .query({ sort })
+          .expect(400);
+      },
+    );
+  });
+
   describe('GET /clubs/:id', () => {
     it('devolve o elenco ordenado por posição, nome e id, com os valores', async () => {
       const club = (await createClub(randomClub())).body as ClubResponse;
@@ -239,7 +278,11 @@ describe('Clubes (e2e)', () => {
       ]);
       expect(body.squad_value).toBe(squadValue / 100);
       expect(body.net_worth).toBe((30000 + squadValue) / 100);
-      expect(body.players[0]).toEqual({ ...goleiro, club_id: club.id });
+      expect(body.players[0]).toEqual({
+        ...goleiro,
+        club_id: club.id,
+        contract: null,
+      });
     });
 
     it('responde 404 para clube inexistente', async () => {

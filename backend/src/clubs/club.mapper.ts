@@ -1,11 +1,23 @@
 import { Prisma } from '@prisma/client';
+import { formatBrazilDateTime } from '../common/rules/datetime';
+import {
+  calculatePenaltyRate,
+  calculateRemainingDays,
+} from '../common/rules/loyalty';
 import { PlayerResponse } from '../players/interfaces/player.interface';
 import { PlayerSort, comparePlayersBy } from '../players/player-sort';
 import { toPlayerResponse } from '../players/player.mapper';
-import { ClubRecord } from './clubs.select';
-import { ClubDetailsResponse, ClubResponse } from './interfaces/club.interface';
+import { ClubDetailsRecord, ClubRecord } from './clubs.select';
+import {
+  ClubDetailsResponse,
+  ClubResponse,
+  SquadContract,
+  SquadPlayerResponse,
+} from './interfaces/club.interface';
 
 const SQUAD_ORDER = comparePlayersBy([PlayerSort.POSITION]);
+
+type SquadPlayerRecord = ClubDetailsRecord['players'][number];
 
 function summarize(club: ClubRecord, players: PlayerResponse[]): ClubResponse {
   const squadValue = players.reduce(
@@ -23,11 +35,38 @@ function summarize(club: ClubRecord, players: PlayerResponse[]): ClubResponse {
   };
 }
 
+function toSquadContract(
+  player: SquadPlayerRecord,
+  now: Date,
+): SquadContract | null {
+  const [contract] = player.contracts;
+  if (!contract) {
+    return null;
+  }
+
+  const remainingDays = calculateRemainingDays(contract.loyaltyUntil, now);
+  return {
+    purchase_value: contract.purchaseValue.toNumber(),
+    loyalty_until: formatBrazilDateTime(contract.loyaltyUntil),
+    remaining_days: remainingDays,
+    penalty_rate: calculatePenaltyRate(remainingDays),
+  };
+}
+
 export function toClubResponse(club: ClubRecord): ClubResponse {
   return summarize(club, club.players.map(toPlayerResponse));
 }
 
-export function toClubDetailsResponse(club: ClubRecord): ClubDetailsResponse {
-  const players = club.players.map(toPlayerResponse).sort(SQUAD_ORDER);
+export function toClubDetailsResponse(
+  club: ClubDetailsRecord,
+  now: Date,
+): ClubDetailsResponse {
+  const players: SquadPlayerResponse[] = club.players
+    .map((player) => ({
+      ...toPlayerResponse(player),
+      contract: toSquadContract(player, now),
+    }))
+    .sort(SQUAD_ORDER);
+
   return { ...summarize(club, players), players };
 }

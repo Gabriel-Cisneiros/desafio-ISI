@@ -1,4 +1,5 @@
 import { Prisma } from '@prisma/client';
+import { ContractStatus } from '../common/enums/contract-status.enum';
 import { ACTIVE_PLAYER } from '../players/active-player';
 import { playerSelect } from '../players/players.select';
 
@@ -11,3 +12,22 @@ export const clubSelect = {
 } satisfies Prisma.ClubSelect;
 
 export type ClubRecord = Prisma.ClubGetPayload<{ select: typeof clubSelect }>;
+
+export const clubDetailsSelect = {
+  ...clubSelect,
+  players: {
+    where: ACTIVE_PLAYER,
+    select: {
+      ...playerSelect,
+      contracts: {
+        where: { status: ContractStatus.ATIVO },
+        select: { purchaseValue: true, loyaltyUntil: true },
+        take: 1,
+      },
+    },
+  },
+} satisfies Prisma.ClubSelect;
+
+export type ClubDetailsRecord = Prisma.ClubGetPayload<{
+  select: typeof clubDetailsSelect;
+}>;
