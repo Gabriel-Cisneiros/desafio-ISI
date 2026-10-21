@@ -4,15 +4,15 @@ import request from 'supertest';
 import { App } from 'supertest/types';
 import { AppModule } from '../src/app.module';
 import { setupApp } from '../src/app.setup';
-import { ClubResponse } from '../src/clubs/interfaces/club.interface';
+import { ClubResponse } from '../src/modules/clubs/interfaces/club.interface';
 import { formatBrazilDateTime } from '../src/common/rules/datetime';
 import {
   MarketOperationResponse,
   SaleResponse,
   TransactionHistoryResponse,
-} from '../src/market/interfaces/transaction.interface';
-import { MAX_SQUAD_SIZE } from '../src/market/market.service';
-import { PlayerResponse } from '../src/players/interfaces/player.interface';
+} from '../src/modules/market/interfaces/transaction.interface';
+import { MAX_SQUAD_SIZE } from '../src/modules/market/market.service';
+import { PlayerResponse } from '../src/modules/players/interfaces/player.interface';
 import { PrismaService } from '../src/prisma/prisma.service';
 
 interface ErrorBody {

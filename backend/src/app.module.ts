@@ -5,10 +5,10 @@ import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 import { RequestLoggerMiddleware } from './common/middleware/request-logger.middleware';
 import { ApiValidationPipe } from './common/pipes/api-validation.pipe';
 import { validateEnv } from './config/env.validation';
-import { ClubsModule } from './clubs/clubs.module';
-import { LineupsModule } from './lineups/lineups.module';
-import { MarketModule } from './market/market.module';
-import { PlayersModule } from './players/players.module';
+import { ClubsModule } from './modules/clubs/clubs.module';
+import { LineupsModule } from './modules/lineups/lineups.module';
+import { MarketModule } from './modules/market/market.module';
+import { PlayersModule } from './modules/players/players.module';
 import { PrismaModule } from './prisma/prisma.module';
 
 @Module({

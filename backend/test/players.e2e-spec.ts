@@ -6,7 +6,7 @@ import { AppModule } from '../src/app.module';
 import { setupApp } from '../src/app.setup';
 import { Paginated } from '../src/common/interfaces/paginated.interface';
 import { compareNames } from '../src/common/rules/text';
-import { PlayerResponse } from '../src/players/interfaces/player.interface';
+import { PlayerResponse } from '../src/modules/players/interfaces/player.interface';
 import { PrismaService } from '../src/prisma/prisma.service';
 
 interface ErrorBody {

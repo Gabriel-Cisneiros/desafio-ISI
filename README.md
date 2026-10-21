@@ -110,7 +110,15 @@ backend/
 │   ├── config/            Leitura e validação das variáveis de ambiente
 │   ├── common/            Filtro de erros, pipes de validação, log de requisições, regras de negócio e enums
 │   ├── docs/              Configuração da documentação Swagger
-│   └── prisma/            Acesso ao banco
+│   ├── prisma/            Acesso ao banco
+│   └── modules/           Módulos de domínio: players, clubs, market e lineups
+│       └── <módulo>/
+│           ├── *.controller.ts, *.service.ts, *.module.ts
+│           ├── dto/          Dados de entrada validados e contratos de resposta para o Swagger
+│           ├── interfaces/   Formato das respostas
+│           ├── selects/      Campos lidos do banco (select do Prisma) e os tipos derivados
+│           ├── mappers/      Conversão dos registros do banco para as respostas
+│           └── utils/        Funções de apoio do módulo, como ordenação, filtros e buscas comuns
 └── test/                  Testes de ponta a ponta
 ```
 

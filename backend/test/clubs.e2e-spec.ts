@@ -7,9 +7,9 @@ import { setupApp } from '../src/app.setup';
 import {
   ClubDetailsResponse,
   ClubResponse,
-} from '../src/clubs/interfaces/club.interface';
-import { MAX_CLUBS } from '../src/clubs/clubs.service';
-import { PlayerResponse } from '../src/players/interfaces/player.interface';
+} from '../src/modules/clubs/interfaces/club.interface';
+import { MAX_CLUBS } from '../src/modules/clubs/clubs.service';
+import { PlayerResponse } from '../src/modules/players/interfaces/player.interface';
 import { PrismaService } from '../src/prisma/prisma.service';
 
 interface ErrorBody {
