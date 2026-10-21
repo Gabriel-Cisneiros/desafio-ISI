@@ -33,3 +33,16 @@ export interface SaleResponse extends TransactionResponse {
   contract_status: ContractStatus;
   club_cash: number;
 }
+
+export interface TransactionSummary {
+  total_spent: number;
+  total_received: number;
+  total_fees: number;
+  total_penalties: number;
+  total_profit: number;
+}
+
+export interface TransactionHistoryResponse {
+  data: TransactionResponse[];
+  summary: TransactionSummary;
+}

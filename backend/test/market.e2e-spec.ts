@@ -9,6 +9,7 @@ import { formatBrazilDateTime } from '../src/common/rules/datetime';
 import {
   MarketOperationResponse,
   SaleResponse,
+  TransactionHistoryResponse,
 } from '../src/market/interfaces/transaction.interface';
 import { MAX_SQUAD_SIZE } from '../src/market/market.service';
 import { PlayerResponse } from '../src/players/interfaces/player.interface';
@@ -421,6 +422,140 @@ describe('Mercado (e2e)', () => {
 
       await sell(2147483647).expect(404);
       await sell(deleted.id).expect(404);
+    });
+  });
+
+  describe('GET /clubs/:id/transactions', () => {
+    const zeroSummary = {
+      total_spent: 0,
+      total_received: 0,
+      total_fees: 0,
+      total_penalties: 0,
+      total_profit: 0,
+    };
+
+    function history(clubId: number, query: Record<string, string> = {}) {
+      return request(app.getHttpServer())
+        .get(`/api/v1/clubs/${clubId}/transactions`)
+        .query(query);
+    }
+
+    async function buyAndSell() {
+      const club = await createClub();
+      const player = await createPlayer();
+      await request(app.getHttpServer())
+        .patch(`/api/v1/players/${player.id}/condition`)
+        .send({ condition: 'MAL_CONDICIONADO' })
+        .expect(200);
+      await buy(player.id, {
+        club_id: club.id,
+        loyalty_until: loyaltyIn(120),
+      }).expect(200);
+      await request(app.getHttpServer())
+        .patch(`/api/v1/players/${player.id}/condition`)
+        .send({ condition: 'APTO' })
+        .expect(200);
+      await request(app.getHttpServer())
+        .post(`/api/v1/players/${player.id}/sell`)
+        .expect(200);
+      return { club, player };
+    }
+
+    it('lista da mais recente para a mais antiga, com o summary', async () => {
+      const { club } = await buyAndSell();
+
+      const response = await history(club.id).expect(200);
+      const body = response.body as TransactionHistoryResponse;
+
+      expect(body.data.map((transaction) => transaction.type)).toEqual([
+        'VENDA',
+        'COMPRA',
+      ]);
+      expect(body.summary).toEqual({
+        total_spent: 38.85,
+        total_received: 35.7,
+        total_fees: 2.15,
+        total_penalties: 4,
+        total_profit: 3,
+      });
+
+      const cash = (
+        await prisma.club.findUniqueOrThrow({ where: { id: club.id } })
+      ).cash.toNumber();
+      const cashChanges = body.data.reduce(
+        (total, transaction) => total + transaction.cash_change * 100,
+        30000,
+      );
+      expect(cashChanges / 100).toBe(cash);
+    });
+
+    it('mantém o nome do momento e as transações de jogador excluído', async () => {
+      const { club, player } = await buyAndSell();
+      await request(app.getHttpServer())
+        .put(`/api/v1/players/${player.id}`)
+        .send({ name: 'Outro Nome', position: 'MEI', agility: 85, age: 25 })
+        .expect(200);
+      await request(app.getHttpServer())
+        .delete(`/api/v1/players/${player.id}`)
+        .expect(204);
+
+      const response = await history(club.id).expect(200);
+      const body = response.body as TransactionHistoryResponse;
+
+      expect(body.data.map((transaction) => transaction.player_name)).toEqual([
+        'Meia Lua',
+        'Meia Lua',
+      ]);
+      await history(club.id, { player_id: String(player.id) }).expect(404);
+    });
+
+    it('filtra por tipo, com o summary dos filtrados', async () => {
+      const { club } = await buyAndSell();
+
+      const response = await history(club.id, { type: 'VENDA' }).expect(200);
+      const body = response.body as TransactionHistoryResponse;
+
+      expect(body.data.map((transaction) => transaction.type)).toEqual([
+        'VENDA',
+      ]);
+      expect(body.summary).toEqual({
+        total_spent: 0,
+        total_received: 35.7,
+        total_fees: 0.3,
+        total_penalties: 4,
+        total_profit: 3,
+      });
+    });
+
+    it('devolve data vazio e summary zerado para jogador sem transações no clube', async () => {
+      const { club } = await buyAndSell();
+      const other = await createPlayer();
+
+      const response = await history(club.id, {
+        player_id: String(other.id),
+      }).expect(200);
+
+      expect(response.body).toEqual({ data: [], summary: zeroSummary });
+    });
+
+    it.each([
+      { type: 'compra' },
+      { type: 'COMPRA,COMPRA' },
+      { type: 'COMPRA, VENDA' },
+      { type: '' },
+      { player_id: '01' },
+      { player_id: '0' },
+    ])('recusa com 400 o filtro %j', async (query) => {
+      const club = await createClub();
+
+      await history(club.id, query).expect(400);
+    });
+
+    it('responde 404 para clube ou jogador inexistente', async () => {
+      const club = await createClub();
+
+      await history(2147483647).expect(404);
+      await history(club.id, { player_id: '2147483647' }).expect(404);
     });
   });
 });
