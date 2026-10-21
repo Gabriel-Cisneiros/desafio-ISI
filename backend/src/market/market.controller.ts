@@ -19,8 +19,14 @@ import { ErrorResponseDto } from '../common/dto/error-response.dto';
 import { ParseIdPipe } from '../common/pipes/parse-id.pipe';
 import { ApiTag } from '../docs/swagger.setup';
 import { BuyPlayerDto } from './dto/buy-player.dto';
-import { MarketOperationResponseDto } from './dto/market-operation-response.dto';
-import { MarketOperationResponse } from './interfaces/transaction.interface';
+import {
+  MarketOperationResponseDto,
+  SaleResponseDto,
+} from './dto/market-operation-response.dto';
+import {
+  MarketOperationResponse,
+  SaleResponse,
+} from './interfaces/transaction.interface';
 import { MarketService } from './market.service';
 
 @ApiTags(ApiTag.MARKET)
@@ -56,5 +62,26 @@ export class MarketController {
     @Body() dto: BuyPlayerDto,
   ): Promise<MarketOperationResponse> {
     return this.marketService.buy(id, dto);
+  }
+
+  @Post(':id/sell')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Vende um jogador pelo clube atual',
+    description:
+      'A venda não tem corpo. O valor é o de mercado no momento; a multa depende dos dias restantes de fidelidade (até 10,00) e a comissão é progressiva sobre o lucro. Numa única operação, credita o caixa, libera o jogador, encerra ou rescinde o contrato, tira o jogador da escalação e grava a transação VENDA.',
+  })
+  @ApiParam({ name: 'id', description: 'Id do jogador.', example: 2 })
+  @ApiOkResponse({ type: SaleResponseDto })
+  @ApiNotFoundResponse({
+    description: 'Jogador inexistente ou excluído.',
+    type: ErrorResponseDto,
+  })
+  @ApiConflictResponse({
+    description: 'Jogador livre, sem clube.',
+    type: ErrorResponseDto,
+  })
+  sell(@Param('id', ParseIdPipe) id: number): Promise<SaleResponse> {
+    return this.marketService.sell(id);
   }
 }

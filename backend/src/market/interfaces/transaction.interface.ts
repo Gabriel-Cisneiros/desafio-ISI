@@ -25,3 +25,11 @@ export interface MarketOperationResponse extends TransactionResponse {
   contract: ContractSummary;
   club_cash: number;
 }
+
+export interface SaleResponse extends TransactionResponse {
+  purchase_value: number;
+  remaining_days: number;
+  penalty_rate: number;
+  contract_status: ContractStatus;
+  club_cash: number;
+}

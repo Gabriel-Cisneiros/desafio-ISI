@@ -5,6 +5,7 @@ import { formatBrazilDateTime } from '../common/rules/datetime';
 import {
   ContractSummary,
   MarketOperationResponse,
+  SaleResponse,
   TransactionResponse,
 } from './interfaces/transaction.interface';
 import { ContractRecord, TransactionRecord } from './market.select';
@@ -44,5 +45,25 @@ export function toMarketOperationResponse(
     ...toTransactionResponse(transaction),
     contract: toContractSummary(contract),
     club_cash: clubCash.toNumber(),
+  };
+}
+
+export function toSaleResponse(
+  transaction: TransactionRecord,
+  sale: {
+    purchaseValue: Prisma.Decimal;
+    remainingDays: number;
+    penaltyRate: number;
+    contractStatus: ContractStatus;
+    clubCash: Prisma.Decimal;
+  },
+): SaleResponse {
+  return {
+    ...toTransactionResponse(transaction),
+    purchase_value: sale.purchaseValue.toNumber(),
+    remaining_days: sale.remainingDays,
+    penalty_rate: sale.penaltyRate,
+    contract_status: sale.contractStatus,
+    club_cash: sale.clubCash.toNumber(),
   };
 }

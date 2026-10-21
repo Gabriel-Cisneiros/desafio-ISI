@@ -6,7 +6,10 @@ import { AppModule } from '../src/app.module';
 import { setupApp } from '../src/app.setup';
 import { ClubResponse } from '../src/clubs/interfaces/club.interface';
 import { formatBrazilDateTime } from '../src/common/rules/datetime';
-import { MarketOperationResponse } from '../src/market/interfaces/transaction.interface';
+import {
+  MarketOperationResponse,
+  SaleResponse,
+} from '../src/market/interfaces/transaction.interface';
 import { MAX_SQUAD_SIZE } from '../src/market/market.service';
 import { PlayerResponse } from '../src/players/interfaces/player.interface';
 import { PrismaService } from '../src/prisma/prisma.service';
@@ -61,12 +64,18 @@ describe('Mercado (e2e)', () => {
     prisma = app.get(PrismaService);
   });
 
-  afterAll(async () => {
+  afterEach(async () => {
     const byPlayer = { where: { playerId: { in: playerIds } } };
+    await prisma.lineupEntry.deleteMany(byPlayer);
     await prisma.transaction.deleteMany(byPlayer);
     await prisma.contract.deleteMany(byPlayer);
     await prisma.player.deleteMany({ where: { id: { in: playerIds } } });
     await prisma.club.deleteMany({ where: { id: { in: clubIds } } });
+    playerIds.length = 0;
+    clubIds.length = 0;
+  });
+
+  afterAll(async () => {
     await app.close();
   });
 
@@ -300,5 +309,118 @@ describe('Mercado (e2e)', () => {
     await buy(2147483647, body).expect(404);
     await buy(deleted.id, body).expect(404);
     await buy(player.id, { ...body, club_id: 2147483647 }).expect(404);
+  });
+
+  describe('POST /players/:id/sell', () => {
+    function sell(playerId: number) {
+      return request(app.getHttpServer())
+        .post(`/api/v1/players/${playerId}/sell`)
+        .send({ club_id: 999, value: 1 });
+    }
+
+    async function boughtPlayer(club: ClubResponse) {
+      const player = await createPlayer();
+      await request(app.getHttpServer())
+        .patch(`/api/v1/players/${player.id}/condition`)
+        .send({ condition: 'MAL_CONDICIONADO' })
+        .expect(200);
+      await buy(player.id, {
+        club_id: club.id,
+        loyalty_until: loyaltyIn(120),
+      }).expect(200);
+      await request(app.getHttpServer())
+        .patch(`/api/v1/players/${player.id}/condition`)
+        .send({ condition: 'APTO' })
+        .expect(200);
+      return player;
+    }
+
+    it('vende com multa, lucro, comissão e crédito no caixa', async () => {
+      const club = await createClub();
+      const player = await boughtPlayer(club);
+      await prisma.lineupEntry.create({
+        data: { clubId: club.id, playerId: player.id },
+      });
+
+      const response = await sell(player.id).expect(200);
+
+      expect(response.body as SaleResponse).toEqual({
+        id: expect.any(Number) as number,
+        club_id: club.id,
+        player_id: player.id,
+        player_name: 'Meia Lua',
+        type: 'VENDA',
+        value: 40,
+        fee: 0.3,
+        penalty: 4,
+        profit: 3,
+        cash_change: 35.7,
+        created_at: expect.any(String) as string,
+        purchase_value: 37,
+        remaining_days: 120,
+        penalty_rate: 10,
+        contract_status: 'RESCINDIDO',
+        club_cash: 296.85,
+      });
+
+      const row = await prisma.player.findUniqueOrThrow({
+        where: { id: player.id },
+      });
+      const contract = await prisma.contract.findFirstOrThrow({
+        where: { playerId: player.id },
+      });
+      expect(row.clubId).toBeNull();
+      expect(contract.status).toBe('RESCINDIDO');
+      expect(contract.endedAt).toBeInstanceOf(Date);
+      expect(
+        await prisma.lineupEntry.count({ where: { playerId: player.id } }),
+      ).toBe(0);
+    });
+
+    it('encerra o contrato sem multa quando a fidelidade já foi cumprida', async () => {
+      const club = await createClub();
+      const player = await boughtPlayer(club);
+      await prisma.contract.updateMany({
+        where: { playerId: player.id },
+        data: { loyaltyUntil: new Date(Date.now() - DAY_MS) },
+      });
+
+      const response = await sell(player.id).expect(200);
+
+      expect(response.body).toMatchObject({
+        penalty: 0,
+        remaining_days: 0,
+        penalty_rate: 0,
+        contract_status: 'ENCERRADO',
+        cash_change: 39.7,
+      });
+    });
+
+    it('impede o clube de recomprar o jogador que vendeu', async () => {
+      const club = await createClub();
+      const player = await boughtPlayer(club);
+      await sell(player.id).expect(200);
+
+      await buy(player.id, {
+        club_id: club.id,
+        loyalty_until: loyaltyIn(30),
+      }).expect(409);
+    });
+
+    it('recusa com 409 jogador livre', async () => {
+      const player = await createPlayer();
+
+      await sell(player.id).expect(409);
+    });
+
+    it('responde 404 para jogador inexistente ou excluído', async () => {
+      const deleted = await createPlayer();
+      await request(app.getHttpServer())
+        .delete(`/api/v1/players/${deleted.id}`)
+        .expect(204);
+
+      await sell(2147483647).expect(404);
+      await sell(deleted.id).expect(404);
+    });
   });
 });

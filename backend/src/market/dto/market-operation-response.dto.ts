@@ -4,6 +4,7 @@ import { TransactionType } from '../../common/enums/transaction-type.enum';
 import {
   ContractSummary,
   MarketOperationResponse,
+  SaleResponse,
   TransactionResponse,
 } from '../interfaces/transaction.interface';
 
@@ -83,6 +84,43 @@ export class MarketOperationResponseDto
   @ApiProperty({
     description: 'Caixa do clube depois da operação.',
     example: 261.15,
+  })
+  club_cash!: number;
+}
+
+export class SaleResponseDto
+  extends TransactionResponseDto
+  implements SaleResponse
+{
+  @ApiProperty({
+    description: 'Valor de compra gravado no contrato, sem a taxa.',
+    example: 37.0,
+  })
+  purchase_value!: number;
+
+  @ApiProperty({
+    description:
+      'Dias até o fim da fidelidade no momento da venda, com fração arredondada para cima.',
+    example: 117,
+  })
+  remaining_days!: number;
+
+  @ApiProperty({
+    description: 'Percentual da multa: 0, 5, 10 ou 20.',
+    example: 10,
+  })
+  penalty_rate!: number;
+
+  @ApiProperty({
+    description: 'RESCINDIDO com multa; ENCERRADO sem multa.',
+    enum: ContractStatus,
+    example: ContractStatus.RESCINDIDO,
+  })
+  contract_status!: ContractStatus;
+
+  @ApiProperty({
+    description: 'Caixa do clube depois da venda.',
+    example: 296.85,
   })
   club_cash!: number;
 }
