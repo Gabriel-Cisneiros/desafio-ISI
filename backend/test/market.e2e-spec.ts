@@ -557,5 +557,84 @@ describe('Mercado (e2e)', () => {
       await history(2147483647).expect(404);
       await history(club.id, { player_id: '2147483647' }).expect(404);
     });
+
+    describe('GET /clubs/:id/transactions/export', () => {
+      const header =
+        'data_hora;tipo;jogador;valor;taxa_ou_comissao;multa;lucro;variacao_caixa';
+      const dateTime = '\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}-03:00';
+
+      function exportCsv(clubId: number, query: Record<string, string> = {}) {
+        return request(app.getHttpServer())
+          .get(`/api/v1/clubs/${clubId}/transactions/export`)
+          .query(query)
+          .buffer(true)
+          .parse((res, callback) => {
+            let text = '';
+            res.setEncoding('utf8');
+            res.on('data', (chunk: string) => (text += chunk));
+            res.on('end', () => callback(null, text));
+          });
+      }
+
+      it('exporta na ordem do histórico, com vírgula decimal e lucro vazio', async () => {
+        const { club } = await buyAndSell();
+
+        const response = await exportCsv(club.id).expect(200);
+        const csv = response.body as string;
+
+        expect(response.headers['content-type']).toMatch(/^text\/csv/);
+        expect(csv.charCodeAt(0)).not.toBe(0xfeff);
+        expect(csv.endsWith('\n')).toBe(true);
+        expect(csv).not.toContain('\r');
+        const lines = csv.slice(0, -1).split('\n');
+        expect(lines[0]).toBe(header);
+        expect(lines[1]).toMatch(
+          new RegExp(`^${dateTime};VENDA;Meia Lua;40,00;0,30;4,00;3,00;35,70$`),
+        );
+        expect(lines[2]).toMatch(
+          new RegExp(`^${dateTime};COMPRA;Meia Lua;37,00;1,85;0,00;;-38,85$`),
+        );
+        expect(lines).toHaveLength(3);
+      });
+
+      it('aplica os filtros do histórico', async () => {
+        const { club, player } = await buyAndSell();
+
+        const response = await exportCsv(club.id, {
+          type: 'COMPRA',
+          player_id: String(player.id),
+        }).expect(200);
+        const lines = (response.body as string).slice(0, -1).split('\n');
+
+        expect(lines).toHaveLength(2);
+        expect(lines[1]).toContain(';COMPRA;');
+      });
+
+      it('sem transações devolve só o cabeçalho', async () => {
+        const club = await createClub();
+
+        const response = await exportCsv(club.id).expect(200);
+
+        expect(response.body).toBe(`${header}\n`);
+      });
+
+      it('responde os erros em JSON', async () => {
+        const club = await createClub();
+
+        for (const [clubId, query, status] of [
+          [club.id, { type: 'compra' }, 400],
+          [club.id, { player_id: '01' }, 400],
+          [2147483647, {}, 404],
+          [club.id, { player_id: '2147483647' }, 404],
+        ] as const) {
+          const response = await request(app.getHttpServer())
+            .get(`/api/v1/clubs/${clubId}/transactions/export`)
+            .query(query)
+            .expect(status);
+          expect(response.headers['content-type']).toMatch(/application\/json/);
+          expect(response.body).toHaveProperty('message');
+        }
+      });
+    });
   });
 });

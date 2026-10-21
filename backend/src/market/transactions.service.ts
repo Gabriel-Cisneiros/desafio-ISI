@@ -12,6 +12,7 @@ import {
 } from './interfaces/transaction.interface';
 import { toTransactionResponse } from './market.mapper';
 import { TransactionRecord, transactionSelect } from './market.select';
+import { toTransactionsCsv } from './transactions-csv';
 
 function summarize(transactions: TransactionRecord[]): TransactionSummary {
   const zero = new Prisma.Decimal(0);
@@ -78,5 +79,12 @@ export class TransactionsService {
       data: transactions.map(toTransactionResponse),
       summary: summarize(transactions),
     };
+  }
+
+  async exportCsv(
+    clubId: number,
+    query: ListTransactionsQueryDto,
+  ): Promise<string> {
+    return toTransactionsCsv(await this.findFiltered(clubId, query));
   }
 }
