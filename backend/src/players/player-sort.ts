@@ -63,3 +63,5 @@ export function comparePlayersBy(sort: PlayerSort[]): PlayerComparator {
     return compareByNameAndId(a, b);
   };
 }
+
+export const SQUAD_ORDER = comparePlayersBy([PlayerSort.POSITION]);

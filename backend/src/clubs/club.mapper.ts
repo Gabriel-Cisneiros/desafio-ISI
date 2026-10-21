@@ -5,7 +5,7 @@ import {
   calculateRemainingDays,
 } from '../common/rules/loyalty';
 import { PlayerResponse } from '../players/interfaces/player.interface';
-import { PlayerSort, comparePlayersBy } from '../players/player-sort';
+import { SQUAD_ORDER } from '../players/player-sort';
 import { toPlayerResponse } from '../players/player.mapper';
 import { ClubDetailsRecord, ClubRecord } from './clubs.select';
 import {
@@ -14,8 +14,6 @@ import {
   SquadContract,
   SquadPlayerResponse,
 } from './interfaces/club.interface';
-
-const SQUAD_ORDER = comparePlayersBy([PlayerSort.POSITION]);
 
 type SquadPlayerRecord = ClubDetailsRecord['players'][number];
 

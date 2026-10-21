@@ -6,6 +6,7 @@ import { RequestLoggerMiddleware } from './common/middleware/request-logger.midd
 import { ApiValidationPipe } from './common/pipes/api-validation.pipe';
 import { validateEnv } from './config/env.validation';
 import { ClubsModule } from './clubs/clubs.module';
+import { LineupsModule } from './lineups/lineups.module';
 import { MarketModule } from './market/market.module';
 import { PlayersModule } from './players/players.module';
 import { PrismaModule } from './prisma/prisma.module';
@@ -17,6 +18,7 @@ import { PrismaModule } from './prisma/prisma.module';
     PlayersModule,
     ClubsModule,
     MarketModule,
+    LineupsModule,
   ],
   providers: [
     { provide: APP_PIPE, useClass: ApiValidationPipe },

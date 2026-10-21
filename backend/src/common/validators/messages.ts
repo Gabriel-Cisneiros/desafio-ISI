@@ -6,6 +6,13 @@ export const MAX = 'O campo $property deve ser no máximo $constraint1.';
 export const ENUM =
   'O campo $property deve ser um destes valores, com as maiúsculas exatas: $constraint2.';
 
+export const ARRAY = 'O campo $property deve ser uma lista.';
+export const ARRAY_SIZE =
+  'O campo $property deve ter exatamente $constraint1 itens.';
+export const ARRAY_UNIQUE = 'O campo $property não pode ter itens repetidos.';
+export const EACH_POSITIVE_INTEGER =
+  'Cada item de $property deve ser um número inteiro positivo.';
+
 export const QUERY_INTEGER =
   'O parâmetro $property deve ser um número inteiro positivo, só com dígitos, sem sinal e sem zeros à esquerda.';
 export const QUERY_DECIMAL =
