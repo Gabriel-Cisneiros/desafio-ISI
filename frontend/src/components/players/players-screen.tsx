@@ -31,6 +31,9 @@ import { CONDITIONS, POSITIONS } from '@/lib/api/types/enums';
 import type { Player } from '@/lib/api/types/player';
 import { formatMoney } from '@/lib/format';
 import { CONDITION_LABELS, POSITION_LABELS } from '@/lib/labels';
+import { CreatePlayerDialog } from './form/create-player-dialog';
+import { EditPlayerDialog } from './form/edit-player-dialog';
+import { PlayerCreatedDialog } from './form/player-created-dialog';
 import { PlayerDetailsSheet } from './player-details-sheet';
 import {
   AGE_RANGE,
@@ -69,7 +72,10 @@ export function PlayersScreen() {
     [searchParams],
   );
   const [searchText, setSearchText] = useState(filters.search);
-  const [detailsId, setDetailsId] = useState<number>();
+  const [detailsTarget, setDetailsTarget] = useState<Player>();
+  const [creating, setCreating] = useState(false);
+  const [created, setCreated] = useState<Player>();
+  const [editing, setEditing] = useState<Player>();
 
   const clubs = useClubs();
   const clubsById = useMemo(
@@ -177,12 +183,14 @@ export function PlayersScreen() {
     'in-clubs': inClubsCount.data?.meta.total_items,
   };
 
-  const details: Player | undefined = list.data?.data.find(
-    (player) => player.id === detailsId,
-  );
+  const details =
+    detailsTarget &&
+    (list.data?.data.find((player) => player.id === detailsTarget.id) ??
+      detailsTarget);
+  const openCreate = () => setCreating(true);
   const handlers = {
-    onDetails: (player: Player) => setDetailsId(player.id),
-    onEdit: noop,
+    onDetails: setDetailsTarget,
+    onEdit: setEditing,
     onChangeCondition: noop,
     onBuy: noop,
     onDelete: noop,
@@ -215,7 +223,7 @@ export function PlayersScreen() {
       title="Nenhum jogador cadastrado"
       description="Com o banco recém-criado, a lista começa vazia."
       action={
-        <Button variant="outline" onClick={noop}>
+        <Button variant="outline" onClick={openCreate}>
           Novo jogador
         </Button>
       }
@@ -244,7 +252,7 @@ export function PlayersScreen() {
         title="Jogadores"
         description="Cadastre jogadores, acompanhe os indicadores e compre os que estão livres."
         action={
-          <Button onClick={noop}>
+          <Button onClick={openCreate}>
             <Plus data-icon="inline-start" />
             Novo jogador
           </Button>
@@ -388,10 +396,31 @@ export function PlayersScreen() {
         club={
           details?.club_id == null ? undefined : clubsById.get(details.club_id)
         }
-        onClose={() => setDetailsId(undefined)}
-        onEdit={noop}
+        onClose={() => setDetailsTarget(undefined)}
+        onEdit={setEditing}
         onChangeCondition={noop}
         onBuy={noop}
+      />
+
+      <CreatePlayerDialog
+        open={creating}
+        onOpenChange={setCreating}
+        onCreated={(player) => {
+          setCreating(false);
+          setCreated(player);
+        }}
+      />
+      <PlayerCreatedDialog
+        player={created}
+        onClose={() => setCreated(undefined)}
+        onDetails={(player) => {
+          setCreated(undefined);
+          setDetailsTarget(player);
+        }}
+      />
+      <EditPlayerDialog
+        player={editing}
+        onClose={() => setEditing(undefined)}
       />
     </div>
   );

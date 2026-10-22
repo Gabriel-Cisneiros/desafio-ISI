@@ -145,6 +145,7 @@ frontend/src/
 ├── components/
 │   ├── layout/            Menu lateral, topo com breadcrumb e navegação
 │   ├── players/           Tela de jogadores: filtros, tabela, ordenação e painel de detalhes
+│   │   └── form/          Cadastro e edição de jogador (Formik e Yup)
 │   ├── shared/            Tabela com estados, paginação, campo de formulário, confirmação e toasts
 │   └── ui/                Componentes do shadcn/ui, com os tokens do Figma
 ├── hooks/
@@ -187,6 +188,7 @@ frontend/src/
 | Next.js (`next`), React (`react`, `react-dom`) | Framework da interface, da stack obrigatória |
 | `axios` | Cliente HTTP único para a API, com a origem lida de variável de ambiente |
 | `zustand` | Estado global do feedback das ações (toasts de sucesso e de erro) |
+| `formik` e `yup` | Estado dos formulários e validação antes do envio, com a mensagem junto ao campo |
 | Tailwind CSS (`tailwindcss`, `@tailwindcss/postcss`, `postcss`) | Estilos a partir dos tokens do design system |
 | shadcn/ui (`shadcn`, `radix-ui`, `class-variance-authority`, `cn`, `tw-animate-css`) | Componentes acessíveis gerados no projeto e personalizados com os tokens do Figma |
 | `lucide-react` | Ícones |
@@ -202,6 +204,9 @@ frontend/src/
 - A busca por nome é enviada 300 ms depois da última tecla e só a partir de 2 caracteres, o mínimo que a API aceita.
 - Os filtros de posição, condição e clube aceitam um valor por vez, como a API. Idade e valor de mercado são faixas, validadas na tela antes do envio (dentro dos limites e com o mínimo menor ou igual ao máximo).
 - Com a aba "Livres", o filtro de clube fica desabilitado; com um clube filtrado, a aba "Livres" fica desabilitada. A API recusa `free=true` junto com `club_id`.
+- Nos formulários de jogador, o Yup valida cada campo isolado (obrigatório, tamanho e palavras do nome, faixas numéricas e inteiros). As regras que cruzam campos (soma dos atributos, potencial e agilidade com 35 anos ou mais) ficam na API, e o `message` da recusa aparece no aviso de erro. Os erros só aparecem depois da primeira tentativa de salvar e, a partir daí, se atualizam enquanto o usuário digita.
+- Na edição, a idade menor que a atual é recusada na própria tela, e um jogador com clube tem as outras posições desabilitadas, pois a API recusa as duas mudanças.
+- A tela não calcula overall, valor base nem valor de mercado: depois do cadastro, mostra os valores devolvidos pela API.
 
 ## 7. Funcionalidades não implementadas
 
