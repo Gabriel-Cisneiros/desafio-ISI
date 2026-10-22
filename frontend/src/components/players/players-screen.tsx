@@ -31,6 +31,8 @@ import { CONDITIONS, POSITIONS } from '@/lib/api/types/enums';
 import type { Player } from '@/lib/api/types/player';
 import { formatMoney } from '@/lib/format';
 import { CONDITION_LABELS, POSITION_LABELS } from '@/lib/labels';
+import { ChangeConditionDialog } from './change-condition-dialog';
+import { DeletePlayerDialog } from './delete-player-dialog';
 import { CreatePlayerDialog } from './form/create-player-dialog';
 import { EditPlayerDialog } from './form/edit-player-dialog';
 import { PlayerCreatedDialog } from './form/player-created-dialog';
@@ -76,6 +78,8 @@ export function PlayersScreen() {
   const [creating, setCreating] = useState(false);
   const [created, setCreated] = useState<Player>();
   const [editing, setEditing] = useState<Player>();
+  const [changingCondition, setChangingCondition] = useState<Player>();
+  const [deleting, setDeleting] = useState<Player>();
 
   const clubs = useClubs();
   const clubsById = useMemo(
@@ -191,9 +195,9 @@ export function PlayersScreen() {
   const handlers = {
     onDetails: setDetailsTarget,
     onEdit: setEditing,
-    onChangeCondition: noop,
+    onChangeCondition: setChangingCondition,
     onBuy: noop,
-    onDelete: noop,
+    onDelete: setDeleting,
   };
 
   const clearButton = (
@@ -398,7 +402,7 @@ export function PlayersScreen() {
         }
         onClose={() => setDetailsTarget(undefined)}
         onEdit={setEditing}
-        onChangeCondition={noop}
+        onChangeCondition={setChangingCondition}
         onBuy={noop}
       />
 
@@ -421,6 +425,19 @@ export function PlayersScreen() {
       <EditPlayerDialog
         player={editing}
         onClose={() => setEditing(undefined)}
+      />
+      <ChangeConditionDialog
+        player={changingCondition}
+        club={
+          changingCondition?.club_id == null
+            ? undefined
+            : clubsById.get(changingCondition.club_id)
+        }
+        onClose={() => setChangingCondition(undefined)}
+      />
+      <DeletePlayerDialog
+        player={deleting}
+        onClose={() => setDeleting(undefined)}
       />
     </div>
   );
