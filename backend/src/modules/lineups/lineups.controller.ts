@@ -16,7 +16,7 @@ import { UpdateLineupDto } from './dto/update-lineup.dto';
 import { LineupResponse } from './interfaces/lineup.interface';
 import { LineupsService } from './lineups.service';
 
-@ApiTags(ApiTag.CLUBS)
+@ApiTags(ApiTag.LEAGUE)
 @Controller('clubs')
 export class LineupsController {
   constructor(private readonly lineupsService: LineupsService) {}
@@ -27,7 +27,12 @@ export class LineupsController {
     description:
       'Substitui a escalação inteira pela formação e pelos 5 titulares enviados. Escalar não muda o caixa. Jogador MAL_CONDICIONADO pode ser escalado.',
   })
-  @ApiParam({ name: 'id', description: 'Id do clube.', example: 1 })
+  @ApiParam({
+    name: 'id',
+    type: 'integer',
+    description: 'Id do clube.',
+    example: 1,
+  })
   @ApiOkResponse({ type: LineupResponseDto })
   @ApiBadRequestResponse({
     description:
@@ -56,7 +61,12 @@ export class LineupsController {
     description:
       'Sem escalação, formation vem null, players vazio e complete false. Se um titular saiu, formation continua a salva, players traz os que sobraram e complete vem false.',
   })
-  @ApiParam({ name: 'id', description: 'Id do clube.', example: 1 })
+  @ApiParam({
+    name: 'id',
+    type: 'integer',
+    description: 'Id do clube.',
+    example: 1,
+  })
   @ApiOkResponse({ type: LineupResponseDto })
   @ApiNotFoundResponse({
     description: 'Clube inexistente.',

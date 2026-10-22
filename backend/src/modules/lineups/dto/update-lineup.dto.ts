@@ -34,7 +34,8 @@ export class UpdateLineupDto {
   @ApiProperty({
     description:
       'Ids dos 5 titulares, em qualquer ordem: 1 GOL e os jogadores de linha da formação, todos do elenco do clube e nenhum DOENTE.',
-    type: [Number],
+    type: 'integer',
+    isArray: true,
     example: [34, 31, 30, 33, 32],
   })
   @IsDefined({ message: REQUIRED })

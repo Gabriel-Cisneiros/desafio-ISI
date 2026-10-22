@@ -48,12 +48,20 @@ export class ListPlayersQueryDto {
   @CharacterLength(2, 100)
   search?: string;
 
-  @ApiPropertyOptional({ enum: Position, example: Position.MEI })
+  @ApiPropertyOptional({
+    description: 'Só os jogadores dessa posição.',
+    enum: Position,
+    example: Position.MEI,
+  })
   @IsOptional()
   @IsEnum(Position, { message: QUERY_ENUM })
   position?: Position;
 
-  @ApiPropertyOptional({ enum: Condition, example: Condition.APTO })
+  @ApiPropertyOptional({
+    description: 'Só os jogadores nessa condição física.',
+    enum: Condition,
+    example: Condition.APTO,
+  })
   @IsOptional()
   @IsEnum(Condition, { message: QUERY_ENUM })
   condition?: Condition;
@@ -71,6 +79,7 @@ export class ListPlayersQueryDto {
   free?: boolean;
 
   @ApiPropertyOptional({
+    type: 'integer',
     description: 'Só os jogadores do elenco desse clube.',
     example: 1,
   })
@@ -79,7 +88,13 @@ export class ListPlayersQueryDto {
   @IsInt({ message: QUERY_INTEGER })
   club_id?: number;
 
-  @ApiPropertyOptional({ minimum: 16, maximum: 45, example: 18 })
+  @ApiPropertyOptional({
+    type: 'integer',
+    description: 'Idade mínima, inclusiva. Sem max_age, o máximo fica em 45.',
+    minimum: 16,
+    maximum: 45,
+    example: 18,
+  })
   @IsOptional()
   @ToQueryInteger()
   @IsInt({ message: QUERY_INTEGER })
@@ -87,7 +102,14 @@ export class ListPlayersQueryDto {
   @Max(45, { message: QUERY_MAX })
   min_age?: number;
 
-  @ApiPropertyOptional({ minimum: 16, maximum: 45, example: 30 })
+  @ApiPropertyOptional({
+    type: 'integer',
+    description:
+      'Idade máxima, inclusiva, maior ou igual a min_age. Sem min_age, o mínimo fica em 16.',
+    minimum: 16,
+    maximum: 45,
+    example: 30,
+  })
   @IsOptional()
   @ToQueryInteger()
   @IsInt({ message: QUERY_INTEGER })
@@ -138,13 +160,21 @@ export class ListPlayersQueryDto {
   })
   sort?: PlayerSort[];
 
-  @ApiPropertyOptional({ minimum: 1, default: 1, example: 1 })
+  @ApiPropertyOptional({
+    type: 'integer',
+    description: 'Página, a partir de 1.',
+    minimum: 1,
+    default: 1,
+    example: 1,
+  })
   @IsOptional()
   @ToQueryInteger()
   @IsInt({ message: QUERY_INTEGER })
   page?: number;
 
   @ApiPropertyOptional({
+    type: 'integer',
+    description: `Itens por página, de 1 a ${MAX_PAGE_LIMIT}.`,
     minimum: 1,
     maximum: MAX_PAGE_LIMIT,
     default: 10,

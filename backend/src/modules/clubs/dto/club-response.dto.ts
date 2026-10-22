@@ -8,7 +8,7 @@ import {
 } from '../interfaces/club.interface';
 
 export class ClubResponseDto implements ClubResponse {
-  @ApiProperty({ example: 1 })
+  @ApiProperty({ type: 'integer', example: 1 })
   id!: number;
 
   @ApiProperty({ example: 'Águias FC' })
@@ -47,6 +47,7 @@ export class SquadContractDto implements SquadContract {
   loyalty_until!: string;
 
   @ApiProperty({
+    type: 'integer',
     description:
       'Dias até o fim da fidelidade, com fração arredondada para cima; 0 se já passou.',
     example: 120,
@@ -54,6 +55,7 @@ export class SquadContractDto implements SquadContract {
   remaining_days!: number;
 
   @ApiProperty({
+    type: 'integer',
     description:
       'Percentual de multa se o jogador fosse vendido agora: 0, 5, 10 ou 20.',
     example: 10,

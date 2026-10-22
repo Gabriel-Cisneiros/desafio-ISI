@@ -31,7 +31,12 @@ export class TransactionsController {
     description:
       'Compras e vendas do clube, da mais recente para a mais antiga, com os valores e o nome do jogador gravados no momento, e o summary com os totais das transações filtradas.',
   })
-  @ApiParam({ name: 'id', description: 'Id do clube.', example: 1 })
+  @ApiParam({
+    name: 'id',
+    type: 'integer',
+    description: 'Id do clube.',
+    example: 1,
+  })
   @ApiOkResponse({ type: TransactionHistoryResponseDto })
   @ApiBadRequestResponse({
     description: 'Filtro type ou player_id inválido.',
@@ -54,7 +59,12 @@ export class TransactionsController {
     description:
       'Mesmos filtros e mesma ordem do histórico. Separador ";", valores com 2 casas e vírgula decimal, lucro vazio quando nulo, UTF-8 sem BOM e cada linha terminada em LF. Sem transações, só a linha de cabeçalho.',
   })
-  @ApiParam({ name: 'id', description: 'Id do clube.', example: 1 })
+  @ApiParam({
+    name: 'id',
+    type: 'integer',
+    description: 'Id do clube.',
+    example: 1,
+  })
   @ApiProduces(CSV_CONTENT_TYPE)
   @ApiOkResponse({
     description: 'Arquivo CSV.',

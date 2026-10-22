@@ -4,13 +4,18 @@ import { DifferentFrom } from '../../../common/validators/comparison.validators'
 import { INTEGER, MIN, REQUIRED } from '../../../common/validators/messages';
 
 export class CreateMatchDto {
-  @ApiProperty({ description: 'Id do clube mandante.', example: 1 })
+  @ApiProperty({
+    type: 'integer',
+    description: 'Id do clube mandante.',
+    example: 1,
+  })
   @IsDefined({ message: REQUIRED })
   @IsInt({ message: INTEGER })
   @Min(1, { message: MIN })
   home_club_id!: number;
 
   @ApiProperty({
+    type: 'integer',
     description: 'Id do clube visitante, diferente do mandante.',
     example: 2,
   })

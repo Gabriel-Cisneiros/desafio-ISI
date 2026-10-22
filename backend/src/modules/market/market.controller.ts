@@ -41,7 +41,12 @@ export class MarketController {
     description:
       'O preço é o valor de mercado no momento, mais a taxa de 5% quando o valor passa de 30,00. O custo total não pode passar de 50% do caixa. Numa única operação, desconta o caixa, coloca o jogador no elenco, cria o contrato ATIVO e grava a transação COMPRA.',
   })
-  @ApiParam({ name: 'id', description: 'Id do jogador.', example: 2 })
+  @ApiParam({
+    name: 'id',
+    type: 'integer',
+    description: 'Id do jogador.',
+    example: 2,
+  })
   @ApiOkResponse({ type: MarketOperationResponseDto })
   @ApiBadRequestResponse({
     description:
@@ -71,7 +76,12 @@ export class MarketController {
     description:
       'A venda não tem corpo. O valor é o de mercado no momento; a multa depende dos dias restantes de fidelidade (até 10,00) e a comissão é progressiva sobre o lucro. Numa única operação, credita o caixa, libera o jogador, encerra ou rescinde o contrato, tira o jogador da escalação e grava a transação VENDA.',
   })
-  @ApiParam({ name: 'id', description: 'Id do jogador.', example: 2 })
+  @ApiParam({
+    name: 'id',
+    type: 'integer',
+    description: 'Id do jogador.',
+    example: 2,
+  })
   @ApiOkResponse({ type: SaleResponseDto })
   @ApiNotFoundResponse({
     description: 'Jogador inexistente ou excluído.',

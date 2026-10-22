@@ -47,7 +47,7 @@ export class PlayersController {
   @ApiOperation({
     summary: 'Cadastra um jogador',
     description:
-      'O jogador nasce APTO e livre, com o valor base calculado pela API (RN06). Campos calculados ou controlados pelo sistema e campos desconhecidos são ignorados.',
+      'O jogador nasce APTO e livre, com o valor base calculado pela API. Campos calculados ou controlados pelo sistema e campos desconhecidos são ignorados.',
   })
   @ApiCreatedResponse({
     description: 'Jogador cadastrado.',
@@ -101,7 +101,12 @@ export class PlayersController {
     description:
       'O valor de mercado e o overall são calculados no momento da consulta.',
   })
-  @ApiParam({ name: 'id', description: 'Id do jogador.', example: 2 })
+  @ApiParam({
+    name: 'id',
+    type: 'integer',
+    description: 'Id do jogador.',
+    example: 2,
+  })
   @ApiOkResponse({ type: PlayerResponseDto })
   @ApiNotFoundResponse({
     description: 'Jogador inexistente ou excluído.',
@@ -117,7 +122,12 @@ export class PlayersController {
     description:
       'Muda só o nome, a posição, a agilidade e a idade. Indicadores, potencial e valor base continuam os do cadastro; o overall é recalculado pela posição.',
   })
-  @ApiParam({ name: 'id', description: 'Id do jogador.', example: 4 })
+  @ApiParam({
+    name: 'id',
+    type: 'integer',
+    description: 'Id do jogador.',
+    example: 4,
+  })
   @ApiOkResponse({
     description: 'Jogador atualizado.',
     type: PlayerResponseDto,
@@ -149,7 +159,12 @@ export class PlayersController {
     description:
       'Enviar a condição atual é aceito, sem mudança. Ao passar a DOENTE, o jogador sai da escalação do clube. Outros campos do corpo são ignorados.',
   })
-  @ApiParam({ name: 'id', description: 'Id do jogador.', example: 2 })
+  @ApiParam({
+    name: 'id',
+    type: 'integer',
+    description: 'Id do jogador.',
+    example: 2,
+  })
   @ApiOkResponse({
     description: 'Jogador atualizado.',
     type: PlayerResponseDto,
@@ -180,7 +195,12 @@ export class PlayersController {
     description:
       'Exclusão lógica: o jogador é marcado como excluído e passa a contar como inexistente. Transações e partidas antigas continuam mostrando o jogador como foi gravado.',
   })
-  @ApiParam({ name: 'id', description: 'Id do jogador.', example: 9 })
+  @ApiParam({
+    name: 'id',
+    type: 'integer',
+    description: 'Id do jogador.',
+    example: 9,
+  })
   @ApiNoContentResponse({ description: 'Jogador excluído, sem corpo.' })
   @ApiNotFoundResponse({
     description: 'Jogador inexistente ou já excluído.',

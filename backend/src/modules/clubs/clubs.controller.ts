@@ -84,7 +84,12 @@ export class ClubsController {
     description:
       'Clube com o elenco ordenado por posição, nome e id. Valor do elenco e patrimônio são calculados no momento da consulta.',
   })
-  @ApiParam({ name: 'id', description: 'Id do clube.', example: 1 })
+  @ApiParam({
+    name: 'id',
+    type: 'integer',
+    description: 'Id do clube.',
+    example: 1,
+  })
   @ApiOkResponse({ type: ClubDetailsResponseDto })
   @ApiNotFoundResponse({
     description: 'Clube inexistente.',

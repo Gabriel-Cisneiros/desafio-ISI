@@ -4,7 +4,7 @@ import { Position } from '../../../common/enums/position.enum';
 import { PlayerResponse } from '../interfaces/player.interface';
 
 export class PlayerResponseDto implements PlayerResponse {
-  @ApiProperty({ example: 2 })
+  @ApiProperty({ type: 'integer', example: 2 })
   id!: number;
 
   @ApiProperty({ example: 'Meia Lua' })
@@ -13,10 +13,10 @@ export class PlayerResponseDto implements PlayerResponse {
   @ApiProperty({ enum: Position, example: Position.MEI })
   position!: Position;
 
-  @ApiProperty({ example: 85 })
+  @ApiProperty({ type: 'integer', example: 85 })
   agility!: number;
 
-  @ApiProperty({ example: 25 })
+  @ApiProperty({ type: 'integer', example: 25 })
   age!: number;
 
   @ApiProperty({
@@ -39,28 +39,29 @@ export class PlayerResponseDto implements PlayerResponse {
   })
   market_value!: number;
 
-  @ApiProperty({ example: 70 })
+  @ApiProperty({ type: 'integer', example: 70 })
   pace!: number;
 
-  @ApiProperty({ example: 68 })
+  @ApiProperty({ type: 'integer', example: 68 })
   shooting!: number;
 
-  @ApiProperty({ example: 82 })
+  @ApiProperty({ type: 'integer', example: 82 })
   passing!: number;
 
-  @ApiProperty({ example: 79 })
+  @ApiProperty({ type: 'integer', example: 79 })
   dribbling!: number;
 
-  @ApiProperty({ example: 55 })
+  @ApiProperty({ type: 'integer', example: 55 })
   defending!: number;
 
-  @ApiProperty({ example: 64 })
+  @ApiProperty({ type: 'integer', example: 64 })
   physical!: number;
 
-  @ApiProperty({ example: 86 })
+  @ApiProperty({ type: 'integer', example: 86 })
   potential!: number;
 
   @ApiProperty({
+    type: 'integer',
     description:
       'Overall calculado a cada consulta pelos atributos e pela posição atual.',
     example: 75,
@@ -68,8 +69,8 @@ export class PlayerResponseDto implements PlayerResponse {
   overall!: number;
 
   @ApiProperty({
+    type: 'integer',
     description: 'Clube atual do jogador; nulo quando está livre.',
-    type: Number,
     nullable: true,
     example: null,
   })

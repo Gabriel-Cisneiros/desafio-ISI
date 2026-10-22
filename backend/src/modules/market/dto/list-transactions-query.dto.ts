@@ -24,6 +24,7 @@ export class ListTransactionsQueryDto {
   type?: TransactionType[];
 
   @ApiPropertyOptional({
+    type: 'integer',
     description: 'Só as transações desse jogador no clube.',
     example: 2,
   })

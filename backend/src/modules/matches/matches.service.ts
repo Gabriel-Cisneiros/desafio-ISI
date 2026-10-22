@@ -77,7 +77,7 @@ export class MatchesService {
       for (const club of [home, away]) {
         if (club.formation === null || club.lineup.length !== LINEUP_SIZE) {
           throw new ConflictException(
-            `O clube ${club.id} não tem a escalação completa, com os ${LINEUP_SIZE} titulares.`,
+            `O clube ${club.name} não tem a escalação completa, com os ${LINEUP_SIZE} titulares.`,
           );
         }
       }

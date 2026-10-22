@@ -4,7 +4,7 @@ import { PlayerResponseDto } from '../../players/dto/player-response.dto';
 import { LineupResponse } from '../interfaces/lineup.interface';
 
 export class LineupResponseDto implements LineupResponse {
-  @ApiProperty({ example: 1 })
+  @ApiProperty({ type: 'integer', example: 1 })
   club_id!: number;
 
   @ApiProperty({

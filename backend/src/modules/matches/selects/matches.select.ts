@@ -13,6 +13,7 @@ export const matchPlayerSelect = {
 
 export const matchClubSelect = {
   id: true,
+  name: true,
   formation: true,
   lineup: { select: { player: { select: matchPlayerSelect } } },
 } satisfies Prisma.ClubSelect;

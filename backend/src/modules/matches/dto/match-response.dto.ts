@@ -20,7 +20,7 @@ const DUEL_ATTRIBUTES: DuelAttribute[] = [
 ];
 
 export class MatchTeamDto implements MatchTeam {
-  @ApiProperty({ example: 1 })
+  @ApiProperty({ type: 'integer', example: 1 })
   club_id!: number;
 
   @ApiProperty({ example: 'Águias FC' })
@@ -33,12 +33,16 @@ export class MatchTeamDto implements MatchTeam {
   })
   formation!: Formation;
 
-  @ApiProperty({ description: 'Gols marcados, de 0 a 3.', example: 1 })
+  @ApiProperty({
+    type: 'integer',
+    description: 'Gols marcados, de 0 a 3.',
+    example: 1,
+  })
   goals!: number;
 }
 
 export class DuelPlayerDto implements DuelPlayer {
-  @ApiProperty({ example: 34 })
+  @ApiProperty({ type: 'integer', example: 34 })
   player_id!: number;
 
   @ApiProperty({
@@ -62,6 +66,7 @@ export class DuelPlayerDto implements DuelPlayer {
   attribute!: DuelAttribute;
 
   @ApiProperty({
+    type: 'integer',
     description:
       'Valor usado no duelo, já com o efeito da condição: MAL_CONDICIONADO joga com 15% a menos.',
     example: 75,
@@ -71,13 +76,14 @@ export class DuelPlayerDto implements DuelPlayer {
 
 export class DuelResponseDto implements DuelResponse {
   @ApiProperty({
+    type: 'integer',
     description:
       'Número do duelo: 1 a 3 são os ataques do mandante, 4 a 6 os do visitante.',
     example: 1,
   })
   order!: number;
 
-  @ApiProperty({ example: 1 })
+  @ApiProperty({ type: 'integer', example: 1 })
   attacking_club_id!: number;
 
   @ApiProperty({ type: DuelPlayerDto })
@@ -94,7 +100,7 @@ export class DuelResponseDto implements DuelResponse {
 }
 
 export class MatchResponseDto implements MatchResponse {
-  @ApiProperty({ example: 1 })
+  @ApiProperty({ type: 'integer', example: 1 })
   id!: number;
 
   @ApiProperty({ example: '2026-11-12T15:00:00-03:00' })

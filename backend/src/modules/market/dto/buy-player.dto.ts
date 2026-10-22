@@ -9,7 +9,11 @@ import {
 } from '../../../common/validators/messages';
 
 export class BuyPlayerDto {
-  @ApiProperty({ description: 'Id do clube comprador.', example: 1 })
+  @ApiProperty({
+    type: 'integer',
+    description: 'Id do clube comprador.',
+    example: 1,
+  })
   @IsDefined({ message: REQUIRED })
   @IsInt({ message: INTEGER })
   @Min(1, { message: MIN })

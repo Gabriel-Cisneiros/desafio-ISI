@@ -94,7 +94,12 @@ export class MatchesController {
     description:
       'Partida com os 6 duelos na ordem em que foram disputados, com os dados gravados no momento da partida.',
   })
-  @ApiParam({ name: 'id', description: 'Id da partida.', example: 1 })
+  @ApiParam({
+    name: 'id',
+    type: 'integer',
+    description: 'Id da partida.',
+    example: 1,
+  })
   @ApiOkResponse({ type: MatchDetailsResponseDto })
   @ApiNotFoundResponse({
     description: 'Partida inexistente.',

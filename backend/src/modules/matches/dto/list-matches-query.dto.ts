@@ -5,6 +5,7 @@ import { ToQueryInteger } from '../../../common/validators/query.validators';
 
 export class ListMatchesQueryDto {
   @ApiPropertyOptional({
+    type: 'integer',
     description: 'Só as partidas em que o clube foi mandante ou visitante.',
     example: 1,
   })

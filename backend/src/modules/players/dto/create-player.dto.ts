@@ -53,6 +53,7 @@ export class CreatePlayerDto {
   position!: Position;
 
   @ApiProperty({
+    type: 'integer',
     description:
       'Agilidade, de 1 a 100. Com 35 anos ou mais, no máximo 85. Altera o desconto por condição no valor de mercado.',
     example: 85,
@@ -67,6 +68,7 @@ export class CreatePlayerDto {
   agility!: number;
 
   @ApiProperty({
+    type: 'integer',
     description: 'Idade atual, de 16 a 45.',
     example: 25,
     minimum: 16,
@@ -79,6 +81,7 @@ export class CreatePlayerDto {
   age!: number;
 
   @ApiProperty({
+    type: 'integer',
     description: attributeDescription('Velocidade'),
     example: 70,
     minimum: 1,
@@ -91,6 +94,7 @@ export class CreatePlayerDto {
   pace!: number;
 
   @ApiProperty({
+    type: 'integer',
     description: attributeDescription('Finalização'),
     example: 68,
     minimum: 1,
@@ -103,6 +107,7 @@ export class CreatePlayerDto {
   shooting!: number;
 
   @ApiProperty({
+    type: 'integer',
     description: attributeDescription('Passe'),
     example: 82,
     minimum: 1,
@@ -115,6 +120,7 @@ export class CreatePlayerDto {
   passing!: number;
 
   @ApiProperty({
+    type: 'integer',
     description: attributeDescription('Drible'),
     example: 79,
     minimum: 1,
@@ -127,6 +133,7 @@ export class CreatePlayerDto {
   dribbling!: number;
 
   @ApiProperty({
+    type: 'integer',
     description: attributeDescription('Defesa'),
     example: 55,
     minimum: 1,
@@ -139,6 +146,7 @@ export class CreatePlayerDto {
   defending!: number;
 
   @ApiProperty({
+    type: 'integer',
     description: attributeDescription('Físico'),
     example: 64,
     minimum: 1,
@@ -152,6 +160,7 @@ export class CreatePlayerDto {
   physical!: number;
 
   @ApiProperty({
+    type: 'integer',
     description:
       'Potencial, de 1 a 99 e maior ou igual ao maior dos seis atributos. Com 33 anos ou mais, igual ao maior dos seis atributos. Não muda depois do cadastro.',
     example: 86,

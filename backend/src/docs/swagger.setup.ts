@@ -22,9 +22,9 @@ export function setupSwagger(app: INestApplication): void {
       ApiTag.PLAYERS,
       'Cadastro, consulta, edição e exclusão de jogadores',
     )
-    .addTag(ApiTag.CLUBS, 'Cadastro e consulta de clubes, elenco e escalação')
+    .addTag(ApiTag.CLUBS, 'Cadastro e consulta de clubes e do elenco')
     .addTag(ApiTag.MARKET, 'Compra, venda e histórico de transações')
-    .addTag(ApiTag.LEAGUE, 'Partidas e classificação')
+    .addTag(ApiTag.LEAGUE, 'Escalação, partidas e classificação')
     .build();
 
   const document = SwaggerModule.createDocument(app, config, {

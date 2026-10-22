@@ -9,13 +9,13 @@ import {
 } from '../interfaces/transaction.interface';
 
 export class TransactionResponseDto implements TransactionResponse {
-  @ApiProperty({ example: 10 })
+  @ApiProperty({ type: 'integer', example: 10 })
   id!: number;
 
-  @ApiProperty({ example: 1 })
+  @ApiProperty({ type: 'integer', example: 1 })
   club_id!: number;
 
-  @ApiProperty({ example: 2 })
+  @ApiProperty({ type: 'integer', example: 2 })
   player_id!: number;
 
   @ApiProperty({
@@ -99,6 +99,7 @@ export class SaleResponseDto
   purchase_value!: number;
 
   @ApiProperty({
+    type: 'integer',
     description:
       'Dias até o fim da fidelidade no momento da venda, com fração arredondada para cima.',
     example: 117,
@@ -106,6 +107,7 @@ export class SaleResponseDto
   remaining_days!: number;
 
   @ApiProperty({
+    type: 'integer',
     description: 'Percentual da multa: 0, 5, 10 ou 20.',
     example: 10,
   })
