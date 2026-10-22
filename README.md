@@ -71,7 +71,26 @@ npm run format:check  # Prettier, só verifica
 
 ### Frontend
 
-_A preencher._
+Com a API no ar:
+
+```text
+cd frontend
+cp .env.example .env
+npm ci
+npm run build
+npm run start
+# Interface em http://localhost:3001
+```
+
+Para desenvolver, `npm run dev` sobe a interface em modo de observação, na mesma porta.
+
+Comandos de qualidade, na pasta `frontend`:
+
+```text
+npm run lint          # ESLint
+npm run format:check  # Prettier, só verifica
+npm run build         # build de produção, com checagem de tipos
+```
 
 ## 4. Variáveis de ambiente
 
@@ -124,18 +143,22 @@ backend/
 frontend/src/
 ├── app/                   Rotas do App Router (uma pasta por tela)
 ├── components/
-│   ├── layout/            Menu lateral e navegação
-│   └── ui/                Componentes do shadcn/ui
+│   ├── layout/            Menu lateral, topo com breadcrumb e navegação
+│   ├── shared/            Tabela com estados, paginação, campo de formulário, confirmação e toasts
+│   └── ui/                Componentes do shadcn/ui, com os tokens do Figma
 ├── hooks/
 │   ├── use-api-query.ts   Consulta à API com carregamento, erro e recarga
 │   ├── use-api-action.ts  Ação na API com bloqueio de envio duplo e toast de sucesso ou erro
 │   └── data/              Hooks de consulta por recurso (jogadores, clubes, mercado e liga)
+├── lib/
+│   ├── format.ts          Formatadores de moeda, data e iniciais
+│   └── labels.ts          Rótulos de posição, condição e tipo de transação
 ├── lib/api/
 │   ├── client.ts          Cliente Axios com a origem da API e o prefixo /api/v1
 │   ├── errors.ts          Extração do message das respostas de erro
 │   ├── services/          Um serviço por recurso
 │   └── types/             Tipos das respostas, em snake_case como a API devolve
-└── stores/                Store de feedback (toasts) em Zustand
+└── stores/                Stores em Zustand: feedback (toasts) e recarga global dos dados
 ```
 
 ### Bibliotecas

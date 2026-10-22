@@ -1,16 +1,20 @@
 import { create } from 'zustand';
 
-export type FeedbackType = 'success' | 'error';
+export type FeedbackType = 'success' | 'error' | 'info';
 
-export interface Feedback {
+export interface FeedbackContent {
+  title: string;
+  description?: string;
+}
+
+export interface Feedback extends FeedbackContent {
   id: number;
   type: FeedbackType;
-  message: string;
 }
 
 interface FeedbackState {
   items: Feedback[];
-  notify: (type: FeedbackType, message: string) => void;
+  notify: (type: FeedbackType, content: FeedbackContent) => void;
   dismiss: (id: number) => void;
 }
 
@@ -18,16 +22,19 @@ let nextId = 1;
 
 export const useFeedbackStore = create<FeedbackState>((set) => ({
   items: [],
-  notify: (type, message) =>
+  notify: (type, content) =>
     set((state) => ({
-      items: [...state.items, { id: nextId++, type, message }],
+      items: [...state.items, { id: nextId++, type, ...content }],
     })),
   dismiss: (id) =>
     set((state) => ({ items: state.items.filter((item) => item.id !== id) })),
 }));
 
-export const notifySuccess = (message: string) =>
-  useFeedbackStore.getState().notify('success', message);
+export const notifySuccess = (content: FeedbackContent) =>
+  useFeedbackStore.getState().notify('success', content);
 
-export const notifyError = (message: string) =>
-  useFeedbackStore.getState().notify('error', message);
+export const notifyError = (content: FeedbackContent) =>
+  useFeedbackStore.getState().notify('error', content);
+
+export const notifyInfo = (content: FeedbackContent) =>
+  useFeedbackStore.getState().notify('info', content);

@@ -2,10 +2,16 @@
 
 import { useRef, useState } from 'react';
 import { getErrorMessage } from '@/lib/api/errors';
-import { notifyError, notifySuccess } from '@/stores/feedback-store';
+import {
+  type FeedbackContent,
+  notifyError,
+  notifySuccess,
+} from '@/stores/feedback-store';
+import { refreshData } from '@/stores/refresh-store';
 
 interface ApiActionOptions<R> {
-  success?: string | ((result: R) => string);
+  errorTitle: string;
+  success?: FeedbackContent | ((result: R) => FeedbackContent);
   onSuccess?: (result: R) => void;
 }
 
@@ -16,7 +22,7 @@ export interface ApiAction<A extends unknown[], R> {
 
 export function useApiAction<A extends unknown[], R>(
   action: (...args: A) => Promise<R>,
-  options: ApiActionOptions<R> = {},
+  options: ApiActionOptions<R>,
 ): ApiAction<A, R> {
   const [pending, setPending] = useState(false);
   const running = useRef(false);
@@ -36,10 +42,14 @@ export function useApiAction<A extends unknown[], R>(
       if (success) {
         notifySuccess(success);
       }
+      refreshData();
       options.onSuccess?.(result);
       return result;
     } catch (error) {
-      notifyError(getErrorMessage(error));
+      notifyError({
+        title: options.errorTitle,
+        description: getErrorMessage(error),
+      });
       return undefined;
     } finally {
       running.current = false;

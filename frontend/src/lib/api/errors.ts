@@ -2,6 +2,8 @@ import { isAxiosError } from 'axios';
 
 export const OFFLINE_MESSAGE =
   'Não foi possível falar com o servidor. Confira se a API está no ar e tente de novo.';
+export const LOAD_OFFLINE_MESSAGE =
+  'Não foi possível carregar os dados. Verifique a conexão e tente de novo.';
 export const UNEXPECTED_MESSAGE = 'Algo deu errado. Tente de novo.';
 
 function readMessage(data: unknown): string | undefined {
@@ -18,12 +20,15 @@ function readMessage(data: unknown): string | undefined {
     : undefined;
 }
 
-export function getErrorMessage(error: unknown): string {
+export function getErrorMessage(
+  error: unknown,
+  offlineMessage = OFFLINE_MESSAGE,
+): string {
   if (!isAxiosError(error)) {
     return UNEXPECTED_MESSAGE;
   }
   if (!error.response) {
-    return OFFLINE_MESSAGE;
+    return offlineMessage;
   }
   return readMessage(error.response.data) ?? UNEXPECTED_MESSAGE;
 }

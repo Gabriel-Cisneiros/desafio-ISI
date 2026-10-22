@@ -1,12 +1,14 @@
+import { Suspense } from 'react';
 import type { Metadata } from 'next';
 import { Geist } from 'next/font/google';
+import { AppHeader, AppHeaderFallback } from '@/components/layout/app-header';
 import { AppSidebar } from '@/components/layout/app-sidebar';
+import { Toaster } from '@/components/shared/toaster';
 import {
+  Sidebar,
   SidebarInset,
   SidebarProvider,
-  SidebarTrigger,
 } from '@/components/ui/sidebar';
-import { Separator } from '@/components/ui/separator';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import './globals.css';
 
@@ -26,16 +28,18 @@ export default function RootLayout({ children }: LayoutProps<'/'>) {
       <body>
         <TooltipProvider>
           <SidebarProvider>
-            <AppSidebar />
+            <Suspense fallback={<Sidebar collapsible="icon" />}>
+              <AppSidebar />
+            </Suspense>
             <SidebarInset>
-              <header className="flex h-14 items-center border-b px-4 py-3">
-                <SidebarTrigger />
-                <Separator orientation="vertical" />
-              </header>
+              <Suspense fallback={<AppHeaderFallback />}>
+                <AppHeader />
+              </Suspense>
               <div className="p-4 md:p-8">{children}</div>
             </SidebarInset>
           </SidebarProvider>
         </TooltipProvider>
+        <Toaster />
       </body>
     </html>
   );

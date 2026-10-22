@@ -1,7 +1,8 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { getErrorMessage } from '@/lib/api/errors';
+import { LOAD_OFFLINE_MESSAGE, getErrorMessage } from '@/lib/api/errors';
+import { useRefreshStore } from '@/stores/refresh-store';
 
 interface QueryState<T> {
   key: string;
@@ -22,9 +23,10 @@ export function useApiQuery<T>(
   enabled = true,
 ): ApiQuery<T> {
   const [version, setVersion] = useState(0);
+  const globalVersion = useRefreshStore((state) => state.version);
   const [state, setState] = useState<QueryState<T>>({ key: '' });
   const fetcherRef = useRef(fetcher);
-  const requestKey = `${JSON.stringify(key)}#${version}`;
+  const requestKey = `${JSON.stringify(key)}#${version}#${globalVersion}`;
 
   useEffect(() => {
     fetcherRef.current = fetcher;
@@ -42,7 +44,7 @@ export function useApiQuery<T>(
         setState((previous) => ({
           key: requestKey,
           data: previous.data,
-          error: getErrorMessage(error),
+          error: getErrorMessage(error, LOAD_OFFLINE_MESSAGE),
         })),
     );
     return () => {
