@@ -171,6 +171,7 @@ frontend/src/
 | --- | --- |
 | NestJS (`@nestjs/common`, `@nestjs/core`, `@nestjs/platform-express`) | Framework da API REST, da stack obrigatória |
 | `reflect-metadata` e `rxjs` | Dependências exigidas pelo NestJS |
+| `express` | Leitura do corpo JSON registrada pela própria aplicação, para responder a um JSON inválido com mensagem em português |
 | `@nestjs/config` | Leitura das variáveis de ambiente do `.env`, com validação na inicialização |
 | `class-validator` e `class-transformer` | Validação declarativa dos dados de entrada nos DTOs |
 | Prisma (`prisma` e `@prisma/client`) | ORM, migrations e acesso ao PostgreSQL; o `Decimal` do Prisma também é usado nos cálculos em moedas, sem erro de ponto flutuante |

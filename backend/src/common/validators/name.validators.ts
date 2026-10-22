@@ -1,5 +1,6 @@
 import { Transform } from 'class-transformer';
 import { ValidationOptions, registerDecorator } from 'class-validator';
+import { fieldLabel } from './field-labels';
 import {
   countCharacters,
   countWords,
@@ -23,7 +24,7 @@ export function registerStringRule(
       options,
       validator: {
         validate: (value: unknown) => typeof value !== 'string' || test(value),
-        defaultMessage: (args) => message(args!.property),
+        defaultMessage: (args) => message(fieldLabel(args!.property)),
       },
     });
   };

@@ -46,7 +46,9 @@ describe('Convenções da API (e2e)', () => {
       .expect(400)
       .expect('Content-Type', /application\/json/);
 
-    expect(typeof (response.body as ErrorBody).message).toBe('string');
+    expect((response.body as ErrorBody).message).toBe(
+      'O corpo da requisição não é um JSON válido.',
+    );
   });
 
   it('libera o CORS para a origem do frontend', async () => {

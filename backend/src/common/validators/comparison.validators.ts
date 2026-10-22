@@ -1,4 +1,5 @@
 import { registerDecorator } from 'class-validator';
+import { fieldLabel } from './field-labels';
 
 export function DifferentFrom(otherProperty: string): PropertyDecorator {
   return (target, propertyName) => {
@@ -11,7 +12,7 @@ export function DifferentFrom(otherProperty: string): PropertyDecorator {
         validate: (value: unknown, args) =>
           value !== (args!.object as Record<string, unknown>)[otherProperty],
         defaultMessage: (args) =>
-          `O campo ${args!.property} deve ser diferente de ${otherProperty}.`,
+          `O campo ${fieldLabel(args!.property)} deve ser diferente de ${fieldLabel(otherProperty)}.`,
       },
     });
   };

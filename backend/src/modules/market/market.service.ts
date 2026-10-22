@@ -34,6 +34,7 @@ import {
   toSaleResponse,
 } from './mappers/market.mapper';
 import { contractSelect, transactionSelect } from './selects/market.select';
+import { fieldLabel } from '../../common/validators/field-labels';
 
 export const MAX_SQUAD_SIZE = 12;
 
@@ -47,7 +48,7 @@ export class MarketService {
 
     if (!isValidLoyaltyEnd(loyaltyUntil, now)) {
       throw new BadRequestException(
-        `O campo loyalty_until deve ser depois do momento da compra e até ${MAX_LOYALTY_DAYS} dias depois dele.`,
+        `O campo ${fieldLabel('loyalty_until')} deve ser depois do momento da compra e até ${MAX_LOYALTY_DAYS} dias depois dele.`,
       );
     }
 

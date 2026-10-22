@@ -39,19 +39,19 @@ describe('CreateClubDto', () => {
 
   it('explica a sigla com as três letras iguais', async () => {
     expect(await messageFor({ name: 'Aaa Clube', acronym: 'AAA' })).toBe(
-      'As três letras do campo acronym não podem ser todas iguais.',
+      'As três letras do campo sigla não podem ser todas iguais.',
     );
   });
 
   it('explica a sigla que não corresponde ao nome', async () => {
     expect(await messageFor({ name: 'Águias FC', acronym: 'GUA' })).toBe(
-      'O campo acronym deve usar letras que aparecem no name nessa ordem, começando pela primeira letra do name.',
+      'O campo sigla deve usar letras que aparecem no nome nessa ordem, começando pela primeira letra do nome.',
     );
   });
 
   it('explica a sigla fora do formato antes de comparar com o nome', async () => {
     expect(await messageFor({ name: 'Águias FC', acronym: 'xyz' })).toBe(
-      'O campo acronym deve ter exatamente 3 letras de A a Z, maiúsculas e sem acento.',
+      'O campo sigla deve ter exatamente 3 letras de A a Z, maiúsculas e sem acento.',
     );
   });
 });

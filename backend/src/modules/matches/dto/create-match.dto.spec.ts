@@ -33,7 +33,7 @@ describe('CreateMatchDto', () => {
     )) as BadRequestException;
 
     expect(error.message).toBe(
-      'O campo away_club_id deve ser diferente de home_club_id.',
+      'O campo visitante deve ser diferente de mandante.',
     );
   });
 });

@@ -48,12 +48,12 @@ describe('UpdateLineupDto', () => {
   it('explica a lista que não é lista', async () => {
     await expect(
       messageFor({ formation: '2-1-1', player_ids: 'abc' }),
-    ).resolves.toBe('O campo player_ids deve ser uma lista.');
+    ).resolves.toBe('O campo jogadores deve ser uma lista.');
   });
 
   it('explica o tamanho da lista', async () => {
     await expect(
       messageFor({ formation: '2-1-1', player_ids: [1, 2] }),
-    ).resolves.toBe('O campo player_ids deve ter exatamente 5 itens.');
+    ).resolves.toBe('O campo jogadores deve ter exatamente 5 itens.');
   });
 });

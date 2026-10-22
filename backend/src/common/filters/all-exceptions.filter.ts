@@ -10,8 +10,6 @@ import { Response } from 'express';
 
 const INTERNAL_ERROR_MESSAGE = 'Erro interno do servidor.';
 const INVALID_REQUEST_MESSAGE = 'Requisição inválida.';
-const INVALID_JSON_MESSAGE = 'O corpo da requisição não é um JSON válido.';
-const JSON_PARSE_ERROR_TYPE = 'entity.parse.failed';
 
 interface ErrorResponse {
   status: number;
@@ -56,13 +54,7 @@ function toErrorResponse(exception: unknown): ErrorResponse | undefined {
     return undefined;
   }
 
-  const isJsonParseError =
-    (exception as { type?: unknown }).type === JSON_PARSE_ERROR_TYPE;
-
-  return {
-    status,
-    message: isJsonParseError ? INVALID_JSON_MESSAGE : INVALID_REQUEST_MESSAGE,
-  };
+  return { status, message: INVALID_REQUEST_MESSAGE };
 }
 
 @Catch()

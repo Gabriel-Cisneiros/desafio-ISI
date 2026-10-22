@@ -63,13 +63,13 @@ describe('validadores de sigla', () => {
 
   it('explica cada regra', () => {
     expect(check('agu')).toEqual([
-      'O campo acronym deve ter exatamente 3 letras de A a Z, maiúsculas e sem acento.',
+      'O campo sigla deve ter exatamente 3 letras de A a Z, maiúsculas e sem acento.',
     ]);
     expect(check('AAA', 'Aaa Clube')).toEqual([
-      'As três letras do campo acronym não podem ser todas iguais.',
+      'As três letras do campo sigla não podem ser todas iguais.',
     ]);
     expect(check('GUA')).toEqual([
-      'O campo acronym deve usar letras que aparecem no name nessa ordem, começando pela primeira letra do name.',
+      'O campo sigla deve usar letras que aparecem no nome nessa ordem, começando pela primeira letra do nome.',
     ]);
   });
 });

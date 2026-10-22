@@ -4,6 +4,7 @@ import {
   hasAcronymFormat,
   hasRepeatedLettersOnly,
 } from '../rules/acronym';
+import { fieldLabel } from './field-labels';
 import { registerStringRule } from './name.validators';
 
 export function HasAcronymFormat(): PropertyDecorator {
@@ -42,7 +43,7 @@ export function MatchesName(nameProperty: string): PropertyDecorator {
           );
         },
         defaultMessage: (args) =>
-          `O campo ${args!.property} deve usar letras que aparecem no ${nameProperty} nessa ordem, começando pela primeira letra do ${nameProperty}.`,
+          `O campo ${fieldLabel(args!.property)} deve usar letras que aparecem no ${fieldLabel(nameProperty)} nessa ordem, começando pela primeira letra do ${fieldLabel(nameProperty)}.`,
       },
     });
   };

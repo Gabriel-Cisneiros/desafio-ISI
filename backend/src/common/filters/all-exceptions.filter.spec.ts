@@ -44,19 +44,16 @@ describe('AllExceptionsFilter', () => {
     expect(json).toHaveBeenCalledWith({ message: 'primeira' });
   });
 
-  it('responde 400 a um corpo que não é JSON válido', () => {
+  it('responde com a mensagem genérica a um erro de cliente que não é HttpException', () => {
     const { host, status, json } = createHost();
-    const parseError = Object.assign(new SyntaxError('Unexpected token'), {
-      status: 400,
-      type: 'entity.parse.failed',
+    const clientError = Object.assign(new Error('payload too large'), {
+      status: 413,
     });
 
-    filter.catch(parseError, host);
+    filter.catch(clientError, host);
 
-    expect(status).toHaveBeenCalledWith(400);
-    expect(json).toHaveBeenCalledWith({
-      message: 'O corpo da requisição não é um JSON válido.',
-    });
+    expect(status).toHaveBeenCalledWith(413);
+    expect(json).toHaveBeenCalledWith({ message: 'Requisição inválida.' });
   });
 
   it('responde 500 sem expor detalhes de um erro inesperado', () => {

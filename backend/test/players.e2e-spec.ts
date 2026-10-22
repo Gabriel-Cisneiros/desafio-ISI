@@ -184,14 +184,14 @@ describe('Jogadores (e2e)', () => {
     });
 
     it.each([
-      [{ name: null }, 'O campo name é obrigatório.'],
-      [{ name: 42 }, 'O campo name deve ser um texto.'],
+      [{ name: null }, 'O campo nome é obrigatório.'],
+      [{ name: 42 }, 'O campo nome deve ser um texto.'],
       [
         { name: 'Meia\tLua' },
-        'O campo name não pode ter tabulação, quebra de linha nem outros caracteres de controle.',
+        'O campo nome não pode ter tabulação, quebra de linha nem outros caracteres de controle.',
       ],
-      [{ agility: '85' }, 'O campo agility deve ser um número inteiro.'],
-      [{ potential: null }, 'O campo potential é obrigatório.'],
+      [{ agility: '85' }, 'O campo agilidade deve ser um número inteiro.'],
+      [{ potential: null }, 'O campo potencial é obrigatório.'],
     ])(
       'explica o erro mais básico do campo: %j',
       async (overrides, message) => {
