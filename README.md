@@ -98,7 +98,7 @@ Cada parte tem o seu arquivo `.env.example`, que deve ser copiado para `.env`.
 ```text
 .
 ├── backend/             API REST (NestJS, Prisma)
-├── frontend/            Interface (Next.js, MUI)
+├── frontend/            Interface (Next.js, Tailwind CSS, shadcn/ui)
 └── docker-compose.yml   Banco de dados PostgreSQL
 
 backend/
@@ -111,7 +111,7 @@ backend/
 │   ├── common/            Filtro de erros, pipes de validação, log de requisições, regras de negócio e enums
 │   ├── docs/              Configuração da documentação Swagger
 │   ├── prisma/            Acesso ao banco
-│   └── modules/           Módulos de domínio: players, clubs, market e lineups
+│   └── modules/           Módulos de domínio: players, clubs, market, lineups e matches
 │       └── <módulo>/
 │           ├── *.controller.ts, *.service.ts, *.module.ts
 │           ├── dto/          Dados de entrada validados e contratos de resposta para o Swagger
@@ -120,6 +120,22 @@ backend/
 │           ├── mappers/      Conversão dos registros do banco para as respostas
 │           └── utils/        Funções de apoio do módulo, como ordenação, filtros e buscas comuns
 └── test/                  Testes de ponta a ponta
+
+frontend/src/
+├── app/                   Rotas do App Router (uma pasta por tela)
+├── components/
+│   ├── layout/            Menu lateral e navegação
+│   └── ui/                Componentes do shadcn/ui
+├── hooks/
+│   ├── use-api-query.ts   Consulta à API com carregamento, erro e recarga
+│   ├── use-api-action.ts  Ação na API com bloqueio de envio duplo e toast de sucesso ou erro
+│   └── data/              Hooks de consulta por recurso (jogadores, clubes, mercado e liga)
+├── lib/api/
+│   ├── client.ts          Cliente Axios com a origem da API e o prefixo /api/v1
+│   ├── errors.ts          Extração do message das respostas de erro
+│   ├── services/          Um serviço por recurso
+│   └── types/             Tipos das respostas, em snake_case como a API devolve
+└── stores/                Store de feedback (toasts) em Zustand
 ```
 
 ### Bibliotecas
@@ -142,7 +158,16 @@ backend/
 
 #### Frontend
 
-_A preencher._
+| Biblioteca | Motivo |
+| --- | --- |
+| Next.js (`next`), React (`react`, `react-dom`) | Framework da interface, da stack obrigatória |
+| `axios` | Cliente HTTP único para a API, com a origem lida de variável de ambiente |
+| `zustand` | Estado global do feedback das ações (toasts de sucesso e de erro) |
+| Tailwind CSS (`tailwindcss`, `@tailwindcss/postcss`, `postcss`) | Estilos a partir dos tokens do design system |
+| shadcn/ui (`shadcn`, `radix-ui`, `class-variance-authority`, `cn`, `tw-animate-css`) | Componentes acessíveis gerados no projeto e personalizados com os tokens do Figma |
+| `lucide-react` | Ícones |
+| ESLint (`eslint`, `eslint-config-next`) e Prettier (`prettier`, `eslint-config-prettier`) | Análise estática e formatação |
+| TypeScript e tipos (`typescript`, `@types/node`, `@types/react`, `@types/react-dom`) | Tipagem do projeto |
 
 ## 6. Decisões e premissas
 

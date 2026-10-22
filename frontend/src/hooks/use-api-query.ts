@@ -1,0 +1,62 @@
+'use client';
+
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { getErrorMessage } from '@/lib/api/errors';
+
+interface QueryState<T> {
+  key: string;
+  data?: T;
+  error?: string;
+}
+
+export interface ApiQuery<T> {
+  data: T | undefined;
+  error: string | undefined;
+  loading: boolean;
+  reload: () => void;
+}
+
+export function useApiQuery<T>(
+  key: readonly unknown[],
+  fetcher: () => Promise<T>,
+  enabled = true,
+): ApiQuery<T> {
+  const [version, setVersion] = useState(0);
+  const [state, setState] = useState<QueryState<T>>({ key: '' });
+  const fetcherRef = useRef(fetcher);
+  const requestKey = `${JSON.stringify(key)}#${version}`;
+
+  useEffect(() => {
+    fetcherRef.current = fetcher;
+  });
+
+  useEffect(() => {
+    if (!enabled) {
+      return;
+    }
+    let active = true;
+    fetcherRef.current().then(
+      (data) => active && setState({ key: requestKey, data }),
+      (error: unknown) =>
+        active &&
+        setState((previous) => ({
+          key: requestKey,
+          data: previous.data,
+          error: getErrorMessage(error),
+        })),
+    );
+    return () => {
+      active = false;
+    };
+  }, [requestKey, enabled]);
+
+  const reload = useCallback(() => setVersion((value) => value + 1), []);
+  const settled = state.key === requestKey;
+
+  return {
+    data: state.data,
+    error: settled ? state.error : undefined,
+    loading: enabled && !settled,
+    reload,
+  };
+}

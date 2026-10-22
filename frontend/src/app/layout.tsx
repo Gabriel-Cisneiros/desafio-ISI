@@ -30,7 +30,7 @@ export default function RootLayout({ children }: LayoutProps<'/'>) {
             <SidebarInset>
               <header className="flex h-14 items-center border-b px-4 py-3">
                 <SidebarTrigger />
-                <Separator orientation='vertical' />
+                <Separator orientation="vertical" />
               </header>
               <div className="p-4 md:p-8">{children}</div>
             </SidebarInset>
