@@ -1,7 +1,13 @@
+import { Suspense } from 'react';
 import type { Metadata } from 'next';
+import { PlayersScreen } from '@/components/players/players-screen';
 
 export const metadata: Metadata = { title: 'Jogadores · Passe' };
 
 export default function PlayersPage() {
-  return <h1 className="text-2xl font-semibold tracking-tight">Jogadores</h1>;
+  return (
+    <Suspense>
+      <PlayersScreen />
+    </Suspense>
+  );
 }

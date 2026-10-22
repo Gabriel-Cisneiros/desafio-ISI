@@ -144,6 +144,7 @@ frontend/src/
 ├── app/                   Rotas do App Router (uma pasta por tela)
 ├── components/
 │   ├── layout/            Menu lateral, topo com breadcrumb e navegação
+│   ├── players/           Tela de jogadores: filtros, tabela, ordenação e painel de detalhes
 │   ├── shared/            Tabela com estados, paginação, campo de formulário, confirmação e toasts
 │   └── ui/                Componentes do shadcn/ui, com os tokens do Figma
 ├── hooks/
@@ -197,6 +198,10 @@ frontend/src/
 - O PostgreSQL do Docker Compose é publicado na porta `5433` da máquina, para não conflitar com um PostgreSQL já instalado na porta padrão.
 - A API usa a porta `3000` e o frontend, a `3001`.
 - Em `GET /players`, os filtros de posição, condição, clube, idade e exclusão são aplicados no banco. A busca pelo nome, a faixa de valor de mercado, a ordenação e a paginação são feitas na API, depois de calcular o valor de mercado de cada jogador com as mesmas funções usadas nas respostas. Assim a fórmula do valor de mercado existe num só lugar, e a busca sem acentos não depende de extensões do PostgreSQL.
+- Na tela de jogadores, a busca, os filtros, a aba (todos, livres ou em clubes), a ordenação e a página ficam na URL. Assim, recarregar a página, voltar no navegador ou compartilhar o link mantém a mesma lista.
+- A busca por nome é enviada 300 ms depois da última tecla e só a partir de 2 caracteres, o mínimo que a API aceita.
+- Os filtros de posição, condição e clube aceitam um valor por vez, como a API. Idade e valor de mercado são faixas, validadas na tela antes do envio (dentro dos limites e com o mínimo menor ou igual ao máximo).
+- Com a aba "Livres", o filtro de clube fica desabilitado; com um clube filtrado, a aba "Livres" fica desabilitada. A API recusa `free=true` junto com `club_id`.
 
 ## 7. Funcionalidades não implementadas
 

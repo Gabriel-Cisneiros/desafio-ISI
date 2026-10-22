@@ -47,7 +47,7 @@ export function Pagination({
       <p className="text-sm text-muted-foreground">
         Mostrando {first}–{last} de {totalItems} {itemLabel}
       </p>
-      {totalPages > 1 && (
+      {totalPages > 0 && (
         <nav aria-label="Paginação" className="flex items-center gap-1">
           <Button
             variant="ghost"
@@ -84,7 +84,7 @@ export function Pagination({
             disabled={page >= totalPages}
             onClick={() => onPageChange(page + 1)}
           >
-            Próximo
+            Próxima
             <ChevronRight data-icon="inline-end" />
           </Button>
         </nav>

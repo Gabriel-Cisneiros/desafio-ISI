@@ -47,7 +47,7 @@ export function AppSidebar() {
   const closeMobile = () => setOpenMobile(false);
 
   return (
-    <Sidebar collapsible="icon">
+    <Sidebar variant="inset" collapsible="icon">
       <SidebarHeader className="h-15 flex-row items-center gap-2.5 px-4 group-data-[collapsible=icon]:px-2">
         <Image
           src="/logo.svg"

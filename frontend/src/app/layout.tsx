@@ -28,10 +28,10 @@ export default function RootLayout({ children }: LayoutProps<'/'>) {
       <body>
         <TooltipProvider>
           <SidebarProvider>
-            <Suspense fallback={<Sidebar collapsible="icon" />}>
+            <Suspense fallback={<Sidebar variant="inset" collapsible="icon" />}>
               <AppSidebar />
             </Suspense>
-            <SidebarInset>
+            <SidebarInset className="min-w-0 md:peer-data-[variant=inset]:border">
               <Suspense fallback={<AppHeaderFallback />}>
                 <AppHeader />
               </Suspense>
