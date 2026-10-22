@@ -6,6 +6,7 @@ import type {
   PlayerAttributes,
   UpdatePlayerBody,
 } from '@/lib/api/types/player';
+import { normalizeName } from '@/lib/text';
 
 export const ATTRIBUTE_FIELDS: {
   key: keyof PlayerAttributes;
@@ -34,10 +35,6 @@ export type CreatePlayerFormValues = PlayerFormValues &
   Record<keyof PlayerAttributes | 'potential', string>;
 
 const INTEGER_PATTERN = /^-?\d+$/;
-
-export function normalizeName(name: string): string {
-  return name.trim().replace(/\s+/g, ' ');
-}
 
 export function parseInteger(text: string): number | undefined {
   const trimmed = text.trim();

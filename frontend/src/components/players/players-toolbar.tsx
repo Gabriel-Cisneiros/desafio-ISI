@@ -1,16 +1,7 @@
 'use client';
 
-import { ArrowUpDown, ChevronDown } from 'lucide-react';
 import { cn } from 'cn';
-import { Button } from '@/components/ui/button';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuLabel,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+import { SortMenu } from '@/components/shared/sort-menu';
 import {
   Tooltip,
   TooltipContent,
@@ -89,29 +80,7 @@ export function PlayersToolbar({
         })}
       </div>
 
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="outline" className="font-normal">
-            <ArrowUpDown data-icon="inline-start" />
-            Ordenar: {SORT_LABELS[sort].charAt(0).toLowerCase()}
-            {SORT_LABELS[sort].slice(1)}
-            <ChevronDown data-icon="inline-end" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-auto min-w-56">
-          <DropdownMenuLabel>Ordenar por</DropdownMenuLabel>
-          <DropdownMenuRadioGroup
-            value={sort}
-            onValueChange={(value) => onSortChange(value as PlayerSort)}
-          >
-            {(Object.keys(SORT_LABELS) as PlayerSort[]).map((value) => (
-              <DropdownMenuRadioItem key={value} value={value}>
-                {SORT_LABELS[value]}
-              </DropdownMenuRadioItem>
-            ))}
-          </DropdownMenuRadioGroup>
-        </DropdownMenuContent>
-      </DropdownMenu>
+      <SortMenu value={sort} labels={SORT_LABELS} onChange={onSortChange} />
     </div>
   );
 }

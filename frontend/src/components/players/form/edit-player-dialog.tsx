@@ -2,12 +2,12 @@
 
 import { Formik } from 'formik';
 import { Lock, User } from 'lucide-react';
+import { FormDialogBody } from '@/components/shared/form-dialog-body';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { useApiAction } from '@/hooks/use-api-action';
 import { playersService } from '@/lib/api/services/players';
 import type { Player, UpdatePlayerBody } from '@/lib/api/types/player';
 import { formatMoney } from '@/lib/format';
-import { FormDialogBody } from './form-dialog-body';
 import { PositionField, TextField } from './player-fields';
 import {
   type PlayerFormValues,

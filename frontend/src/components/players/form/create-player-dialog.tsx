@@ -2,13 +2,13 @@
 
 import { Formik } from 'formik';
 import { Info, User } from 'lucide-react';
+import { FormDialogBody } from '@/components/shared/form-dialog-body';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Separator } from '@/components/ui/separator';
 import { useApiAction } from '@/hooks/use-api-action';
 import { playersService } from '@/lib/api/services/players';
 import type { Player } from '@/lib/api/types/player';
 import { AttributesPreview } from './attributes-preview';
-import { FormDialogBody } from './form-dialog-body';
 import { LockedField, PositionField, TextField } from './player-fields';
 import {
   ATTRIBUTE_FIELDS,

@@ -1,68 +1,19 @@
 'use client';
 
-import type { ReactNode } from 'react';
-import { useField, useFormikContext } from 'formik';
-import { Lock, type LucideIcon } from 'lucide-react';
+import { useField } from 'formik';
+import { Lock } from 'lucide-react';
 import { cn } from 'cn';
 import { FormField, fieldDescribedBy } from '@/components/shared/form-field';
-import { Input } from '@/components/ui/input';
+import {
+  FormikTextField,
+  type FormikTextFieldProps,
+  useShownError,
+} from '@/components/shared/formik-text-field';
 import { POSITIONS, type Position } from '@/lib/api/types/enums';
 import { POSITION_LABELS } from '@/lib/labels';
 
-export function useShownError(name: string): string | undefined {
-  const { submitCount } = useFormikContext();
-  const [, meta] = useField(name);
-  return submitCount > 0 ? meta.error : undefined;
-}
-
-interface TextFieldProps {
-  name: string;
-  label: string;
-  helper?: ReactNode;
-  icon?: LucideIcon;
-  numeric?: boolean;
-  maxLength?: number;
-  className?: string;
-}
-
-export function TextField({
-  name,
-  label,
-  helper,
-  icon: Icon,
-  numeric = false,
-  maxLength,
-  className,
-}: TextFieldProps) {
-  const [field] = useField<string>(name);
-  const error = useShownError(name);
-  const id = `player-${name}`;
-
-  return (
-    <FormField
-      id={id}
-      label={label}
-      error={error}
-      helper={helper}
-      className={className}
-    >
-      <div className="relative">
-        {Icon && (
-          <Icon className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
-        )}
-        <Input
-          id={id}
-          {...field}
-          inputMode={numeric ? 'numeric' : undefined}
-          maxLength={maxLength}
-          autoComplete="off"
-          className={cn(Icon && 'pl-9')}
-          aria-invalid={Boolean(error)}
-          aria-describedby={fieldDescribedBy(id, { error, helper })}
-        />
-      </div>
-    </FormField>
-  );
+export function TextField(props: Omit<FormikTextFieldProps, 'id'>) {
+  return <FormikTextField id={`player-${props.name}`} {...props} />;
 }
 
 interface LockedFieldProps {

@@ -103,7 +103,7 @@ export function AppSidebar() {
         <SidebarGroup>
           <SidebarGroupLabel>Clubes</SidebarGroupLabel>
           <SidebarGroupAction asChild title="Novo clube">
-            <Link href="/clubes" onClick={closeMobile}>
+            <Link href="/clubes?novo=1" onClick={closeMobile}>
               <Plus />
               <span className="sr-only">Novo clube</span>
             </Link>

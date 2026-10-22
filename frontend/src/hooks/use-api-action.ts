@@ -13,6 +13,7 @@ interface ApiActionOptions<R> {
   errorTitle: string;
   success?: FeedbackContent | ((result: R) => FeedbackContent);
   onSuccess?: (result: R) => void;
+  onError?: (message: string) => void;
 }
 
 export interface ApiAction<A extends unknown[], R> {
@@ -46,10 +47,12 @@ export function useApiAction<A extends unknown[], R>(
       options.onSuccess?.(result);
       return result;
     } catch (error) {
-      notifyError({
-        title: options.errorTitle,
-        description: getErrorMessage(error),
-      });
+      const message = getErrorMessage(error);
+      if (options.onError) {
+        options.onError(message);
+      } else {
+        notifyError({ title: options.errorTitle, description: message });
+      }
       return undefined;
     } finally {
       running.current = false;

@@ -18,6 +18,7 @@ interface FormDialogBodyProps {
   pending: boolean;
   onCancel: () => void;
   note?: ReactNode;
+  alert?: ReactNode;
   children: ReactNode;
 }
 
@@ -28,6 +29,7 @@ export function FormDialogBody({
   pending,
   onCancel,
   note,
+  alert,
   children,
 }: FormDialogBodyProps) {
   const { submitCount, errors } = useFormikContext();
@@ -41,6 +43,7 @@ export function FormDialogBody({
           {invalid ? 'Corrija os campos destacados para salvar.' : description}
         </DialogDescription>
       </DialogHeader>
+      {alert}
       {children}
       <DialogFooter className="items-center">
         {note && <div className="mr-auto">{note}</div>}
