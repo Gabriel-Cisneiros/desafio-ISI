@@ -9,15 +9,25 @@ import { Position } from '../../common/enums/position.enum';
 import { LINEUP_SIZE } from '../../common/rules/lineup';
 import { Duel, MatchPlayer, playMatch } from '../../common/rules/match';
 import { PrismaService } from '../../prisma/prisma.service';
-import { CLUB_NOT_FOUND } from '../clubs/utils/existing-club';
+import { CLUB_NOT_FOUND, ensureClubExists } from '../clubs/utils/existing-club';
 import { CreateMatchDto } from './dto/create-match.dto';
-import { MatchDetailsResponse } from './interfaces/match.interface';
-import { toMatchDetailsResponse } from './mappers/match.mapper';
+import { ListMatchesQueryDto } from './dto/list-matches-query.dto';
+import {
+  MatchDetailsResponse,
+  MatchResponse,
+} from './interfaces/match.interface';
+import {
+  toMatchDetailsResponse,
+  toMatchResponse,
+} from './mappers/match.mapper';
 import {
   MatchClubRecord,
   matchClubSelect,
   matchDetailsSelect,
+  matchSelect,
 } from './selects/matches.select';
+
+export const MATCH_NOT_FOUND = 'Partida não encontrada.';
 
 function toMatchPlayers(club: MatchClubRecord): MatchPlayer[] {
   return club.lineup.map(({ player }) => ({
@@ -93,6 +103,36 @@ export class MatchesService {
 
       return toMatchDetailsResponse(match);
     });
+  }
+
+  async list(query: ListMatchesQueryDto): Promise<MatchResponse[]> {
+    const clubId = query.club_id;
+    if (clubId !== undefined) {
+      await ensureClubExists(this.prisma, clubId);
+    }
+
+    const matches = await this.prisma.match.findMany({
+      where:
+        clubId === undefined
+          ? undefined
+          : { OR: [{ homeClubId: clubId }, { awayClubId: clubId }] },
+      orderBy: [{ playedAt: 'desc' }, { id: 'desc' }],
+      select: matchSelect,
+    });
+
+    return matches.map(toMatchResponse);
+  }
+
+  async findOne(id: number): Promise<MatchDetailsResponse> {
+    const match = await this.prisma.match.findUnique({
+      where: { id },
+      select: matchDetailsSelect,
+    });
+    if (!match) {
+      throw new NotFoundException(MATCH_NOT_FOUND);
+    }
+
+    return toMatchDetailsResponse(match);
   }
 
   private async findClubOrThrow(

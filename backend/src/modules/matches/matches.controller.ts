@@ -1,19 +1,29 @@
-import { Body, Controller, Post, Res } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query, Res } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
   ApiConflictResponse,
   ApiCreatedResponse,
   ApiNotFoundResponse,
+  ApiOkResponse,
   ApiOperation,
+  ApiParam,
   ApiTags,
 } from '@nestjs/swagger';
 import type { Response } from 'express';
 import { API_PREFIX } from '../../app.setup';
 import { ErrorResponseDto } from '../../common/dto/error-response.dto';
+import { ParseIdPipe } from '../../common/pipes/parse-id.pipe';
 import { ApiTag } from '../../docs/swagger.setup';
 import { CreateMatchDto } from './dto/create-match.dto';
-import { MatchDetailsResponseDto } from './dto/match-response.dto';
-import { MatchDetailsResponse } from './interfaces/match.interface';
+import { ListMatchesQueryDto } from './dto/list-matches-query.dto';
+import {
+  MatchDetailsResponseDto,
+  MatchResponseDto,
+} from './dto/match-response.dto';
+import {
+  MatchDetailsResponse,
+  MatchResponse,
+} from './interfaces/match.interface';
 import { MatchesService } from './matches.service';
 
 @ApiTags(ApiTag.LEAGUE)
@@ -57,5 +67,40 @@ export class MatchesController {
     const match = await this.matchesService.create(dto);
     response.location(`/${API_PREFIX}/matches/${match.id}`);
     return match;
+  }
+
+  @Get()
+  @ApiOperation({
+    summary: 'Lista as partidas',
+    description:
+      'Partidas sem os duelos, da mais recente para a mais antiga; no mesmo instante, maior id primeiro.',
+  })
+  @ApiOkResponse({ type: [MatchResponseDto] })
+  @ApiBadRequestResponse({
+    description: 'club_id inválido.',
+    type: ErrorResponseDto,
+  })
+  @ApiNotFoundResponse({
+    description: 'Clube inexistente.',
+    type: ErrorResponseDto,
+  })
+  list(@Query() query: ListMatchesQueryDto): Promise<MatchResponse[]> {
+    return this.matchesService.list(query);
+  }
+
+  @Get(':id')
+  @ApiOperation({
+    summary: 'Consulta uma partida',
+    description:
+      'Partida com os 6 duelos na ordem em que foram disputados, com os dados gravados no momento da partida.',
+  })
+  @ApiParam({ name: 'id', description: 'Id da partida.', example: 1 })
+  @ApiOkResponse({ type: MatchDetailsResponseDto })
+  @ApiNotFoundResponse({
+    description: 'Partida inexistente.',
+    type: ErrorResponseDto,
+  })
+  findOne(@Param('id', ParseIdPipe) id: number): Promise<MatchDetailsResponse> {
+    return this.matchesService.findOne(id);
   }
 }

@@ -7,6 +7,7 @@ import { setupApp } from '../src/app.setup';
 import { formatBrazilDateTime } from '../src/common/rules/datetime';
 import { ClubResponse } from '../src/modules/clubs/interfaces/club.interface';
 import { MatchDetailsResponse } from '../src/modules/matches/interfaces/match.interface';
+import { StandingResponse } from '../src/modules/matches/interfaces/standing.interface';
 import { PlayerResponse } from '../src/modules/players/interfaces/player.interface';
 import { PrismaService } from '../src/prisma/prisma.service';
 
@@ -170,6 +171,10 @@ describe('Partidas (e2e)', () => {
     return request(app.getHttpServer()).post('/api/v1/matches').send(body);
   }
 
+  function getMatch(id: number | string) {
+    return request(app.getHttpServer()).get(`/api/v1/matches/${id}`);
+  }
+
   it('joga o exemplo Águias FC 1 × 2 Delta FC e grava os 6 duelos', async () => {
     const aguias = await createTeam(aguiasSquad);
     const delta = await createTeam(deltaSquad);
@@ -268,24 +273,157 @@ describe('Partidas (e2e)', () => {
     expect(davi.body).toMatchObject({ dribbling: 74, defending: 66 });
   });
 
-  it('não muda a partida gravada quando o jogador é editado depois', async () => {
+  it('consulta a partida com os 6 duelos, sem mudar depois de editar, vender ou mudar a condição', async () => {
     const aguias = await createTeam(aguiasSquad);
     const delta = await createTeam(deltaSquad);
     const response = await play({
       home_club_id: aguias.club.id,
       away_club_id: delta.club.id,
     }).expect(201);
-    const body = response.body as MatchDetailsResponse;
+    const played = response.body as MatchDetailsResponse;
 
     await request(app.getHttpServer())
       .put(`/api/v1/players/${aguias.players[4].id}`)
       .send({ name: 'Outro Nome', position: 'ATA', agility: 60, age: 25 })
       .expect(200);
+    await request(app.getHttpServer())
+      .patch(`/api/v1/players/${aguias.players[1].id}/condition`)
+      .send({ condition: 'APTO' })
+      .expect(200);
+    await request(app.getHttpServer())
+      .post(`/api/v1/players/${delta.players[4].id}/sell`)
+      .expect(200);
 
-    const duel = await prisma.matchDuel.findFirstOrThrow({
-      where: { matchId: body.id, order: 1 },
+    const found = await getMatch(played.id).expect(200);
+    expect(found.body).toEqual(played);
+  });
+
+  it('responde 404 para partida inexistente', async () => {
+    for (const id of ['2147483647', '0', '01', 'abc']) {
+      const response = await getMatch(id).expect(404);
+      expect(response.body).toHaveProperty('message');
+    }
+  });
+
+  describe('GET /matches', () => {
+    it('lista sem os duelos, da mais recente para a mais antiga, e filtra pelo clube', async () => {
+      const aguias = await createTeam(aguiasSquad);
+      const delta = await createTeam(deltaSquad);
+      const gama = await createTeam(deltaSquad);
+      const first = await play({
+        home_club_id: aguias.club.id,
+        away_club_id: delta.club.id,
+      }).expect(201);
+      const second = await play({
+        home_club_id: gama.club.id,
+        away_club_id: aguias.club.id,
+      }).expect(201);
+      const third = await play({
+        home_club_id: delta.club.id,
+        away_club_id: gama.club.id,
+      }).expect(201);
+      const ids = (body: unknown) =>
+        (body as MatchDetailsResponse[]).map((match) => match.id);
+
+      const all = await request(app.getHttpServer())
+        .get('/api/v1/matches')
+        .expect(200);
+      const ours = (all.body as MatchDetailsResponse[]).filter((match) =>
+        [first, second, third].some(
+          (r) => (r.body as MatchDetailsResponse).id === match.id,
+        ),
+      );
+      expect(ours.map((match) => match.id)).toEqual(
+        [third, second, first].map((r) => (r.body as MatchDetailsResponse).id),
+      );
+      const { duels, ...summary } = first.body as MatchDetailsResponse;
+      expect(duels).toHaveLength(6);
+      expect(ours[2]).toEqual(summary);
+
+      const filtered = await request(app.getHttpServer())
+        .get('/api/v1/matches')
+        .query({ club_id: String(aguias.club.id) })
+        .expect(200);
+      expect(ids(filtered.body)).toEqual(
+        [second, first].map((r) => (r.body as MatchDetailsResponse).id),
+      );
     });
-    expect(duel.attackerName).toBe('Otto Rangel');
+
+    it('devolve lista vazia para clube sem partidas', async () => {
+      const club = await createClub();
+
+      const response = await request(app.getHttpServer())
+        .get('/api/v1/matches')
+        .query({ club_id: String(club.id) })
+        .expect(200);
+
+      expect(response.body).toEqual([]);
+    });
+
+    it.each(['01', '0', '-1', 'abc', ''])(
+      'recusa com 400 o club_id %j',
+      async (clubId) => {
+        await request(app.getHttpServer())
+          .get('/api/v1/matches')
+          .query({ club_id: clubId })
+          .expect(400);
+      },
+    );
+
+    it('responde 404 para clube inexistente', async () => {
+      await request(app.getHttpServer())
+        .get('/api/v1/matches')
+        .query({ club_id: '2147483647' })
+        .expect(404);
+    });
+  });
+
+  describe('GET /standings', () => {
+    it('inclui todos os clubes, com posições de 1 ao total, e conta pontos e gols', async () => {
+      const aguias = await createTeam(aguiasSquad);
+      const delta = await createTeam(deltaSquad);
+      const idle = await createClub();
+      await play({
+        home_club_id: aguias.club.id,
+        away_club_id: delta.club.id,
+      }).expect(201);
+
+      const response = await request(app.getHttpServer())
+        .get('/api/v1/standings')
+        .expect(200);
+      const standings = response.body as StandingResponse[];
+
+      expect(standings).toHaveLength(await prisma.club.count());
+      expect(standings.map((row) => row.position)).toEqual(
+        standings.map((_, index) => index + 1),
+      );
+      const row = (clubId: number) =>
+        standings.find((standing) => standing.club_id === clubId)!;
+      expect(row(delta.club.id)).toEqual({
+        position: expect.any(Number) as number,
+        club_id: delta.club.id,
+        club_name: delta.club.name,
+        played: 1,
+        wins: 1,
+        draws: 0,
+        losses: 0,
+        goals_for: 2,
+        goals_against: 1,
+        goal_difference: 1,
+        points: 3,
+      });
+      expect(row(aguias.club.id)).toMatchObject({
+        played: 1,
+        losses: 1,
+        goals_for: 1,
+        goals_against: 2,
+        goal_difference: -1,
+        points: 0,
+      });
+      expect(row(idle.id)).toMatchObject({ played: 0, points: 0 });
+      expect(row(delta.club.id).position).toBeLessThan(row(idle.id).position);
+      expect(row(idle.id).position).toBeLessThan(row(aguias.club.id).position);
+    });
   });
 
   it('permite repetir o confronto', async () => {
