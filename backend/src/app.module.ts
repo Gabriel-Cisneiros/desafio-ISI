@@ -8,6 +8,7 @@ import { validateEnv } from './config/env.validation';
 import { ClubsModule } from './modules/clubs/clubs.module';
 import { LineupsModule } from './modules/lineups/lineups.module';
 import { MarketModule } from './modules/market/market.module';
+import { MatchesModule } from './modules/matches/matches.module';
 import { PlayersModule } from './modules/players/players.module';
 import { PrismaModule } from './prisma/prisma.module';
 
@@ -19,6 +20,7 @@ import { PrismaModule } from './prisma/prisma.module';
     ClubsModule,
     MarketModule,
     LineupsModule,
+    MatchesModule,
   ],
   providers: [
     { provide: APP_PIPE, useClass: ApiValidationPipe },
