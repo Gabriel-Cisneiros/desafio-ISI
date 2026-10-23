@@ -5,6 +5,7 @@ import { ConditionBadge } from '@/components/shared/condition-badge';
 import {
   DataTable,
   type DataTableColumn,
+  WrapHeader,
 } from '@/components/shared/data-table';
 import { PlayerAvatar } from '@/components/shared/player-avatar';
 import { Badge } from '@/components/ui/badge';
@@ -86,7 +87,7 @@ export function PlayersTable({
     },
     {
       key: 'base',
-      header: 'Valor base',
+      header: <WrapHeader>Valor base</WrapHeader>,
       align: 'right',
       cell: (player) => (
         <span className="text-muted-foreground">
@@ -96,7 +97,7 @@ export function PlayersTable({
     },
     {
       key: 'market',
-      header: 'Valor de mercado',
+      header: <WrapHeader>Valor de mercado</WrapHeader>,
       align: 'right',
       cell: (player) => (
         <span className="font-semibold">

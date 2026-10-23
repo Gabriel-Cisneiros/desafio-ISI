@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
 import {
   useParams,
@@ -18,13 +19,18 @@ import {
   ShoppingCart,
   Wallet,
 } from 'lucide-react';
+import {
+  type Sale,
+  SellPlayerDialog,
+} from '@/components/market/sell-player-dialog';
+import { SaleResultDialog } from '@/components/market/sale-result-dialog';
 import { ErrorState, StateMessage } from '@/components/shared/list-state';
 import { StatCard } from '@/components/shared/stat-card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useClub } from '@/hooks/data/clubs';
-import type { ClubDetails } from '@/lib/api/types/club';
+import type { ClubDetails, SquadPlayer } from '@/lib/api/types/club';
 import { formatMoney } from '@/lib/format';
 import { type ClubTab, ClubTabs } from './club-tabs';
 import { FREE_PLAYERS_PATH, SquadTable } from './squad-table';
@@ -40,8 +46,6 @@ function readSection(value: string | null): ClubSection {
   return SECTIONS.find((section) => section === value) ?? 'elenco';
 }
 
-const noop = () => {};
-
 export function ClubScreen() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
@@ -49,6 +53,8 @@ export function ClubScreen() {
   const searchParams = useSearchParams();
   const section = readSection(searchParams.get(SECTION_PARAM));
   const club = useClub(Number(id));
+  const [selling, setSelling] = useState<SquadPlayer>();
+  const [sale, setSale] = useState<Sale>();
 
   function changeSection(next: ClubSection) {
     const params = new URLSearchParams(searchParams);
@@ -121,7 +127,7 @@ export function ClubScreen() {
             loading={club.loading}
             error={club.error}
             onRetry={club.reload}
-            onSell={noop}
+            onSell={setSelling}
           />
         ) : (
           <StateMessage
@@ -131,6 +137,19 @@ export function ClubScreen() {
           />
         )}
       </div>
+
+      {data && (
+        <SellPlayerDialog
+          player={selling}
+          club={data}
+          onClose={() => setSelling(undefined)}
+          onSold={(result) => {
+            setSelling(undefined);
+            setSale(result);
+          }}
+        />
+      )}
+      <SaleResultDialog sale={sale} onClose={() => setSale(undefined)} />
     </div>
   );
 }

@@ -145,7 +145,7 @@ frontend/src/
 ├── components/
 │   ├── clubs/             Lista de clubes com ordenação e criação, e página do clube com resumo, abas e elenco
 │   ├── layout/            Menu lateral, topo com breadcrumb e navegação
-│   ├── market/            Compra de jogador: formulário e resultado
+│   ├── market/            Compra e venda de jogador: confirmação e resultado
 │   ├── players/           Tela de jogadores: filtros, tabela, ordenação e painel de detalhes
 │   │   └── form/          Cadastro e edição de jogador (Formik e Yup)
 │   ├── shared/            Tabela com estados, paginação, campos e modal de formulário, ordenação, confirmação e toasts

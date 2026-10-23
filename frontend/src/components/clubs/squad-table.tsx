@@ -2,13 +2,15 @@
 
 import type { ReactNode } from 'react';
 import Link from 'next/link';
-import { Check, HandCoins, Shirt, Users } from 'lucide-react';
+import { HandCoins, Shirt, Users } from 'lucide-react';
 import { ConditionBadge } from '@/components/shared/condition-badge';
 import {
   DataTable,
   type DataTableColumn,
+  WrapHeader,
 } from '@/components/shared/data-table';
 import { StateMessage } from '@/components/shared/list-state';
+import { PenaltyBadge } from '@/components/shared/penalty-badge';
 import { PlayerAvatar } from '@/components/shared/player-avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -16,20 +18,6 @@ import type { SquadPlayer } from '@/lib/api/types/club';
 import { formatMoney, splitDateTime } from '@/lib/format';
 
 export const FREE_PLAYERS_PATH = '/jogadores?tab=free';
-
-function PenaltyBadge({ rate }: { rate: number }) {
-  if (rate === 0) {
-    return (
-      <Badge variant="success">
-        <Check />
-        0%
-      </Badge>
-    );
-  }
-  return (
-    <Badge variant={rate >= 20 ? 'destructive' : 'warning'}>{rate}%</Badge>
-  );
-}
 
 function contractCell(
   player: SquadPlayer,
@@ -82,7 +70,7 @@ export function SquadTable({
     },
     {
       key: 'market',
-      header: 'Valor de mercado',
+      header: <WrapHeader>Valor de mercado</WrapHeader>,
       align: 'right',
       cell: (player) => (
         <span className="font-semibold">
@@ -92,7 +80,7 @@ export function SquadTable({
     },
     {
       key: 'purchase',
-      header: 'Valor de compra',
+      header: <WrapHeader>Valor de compra</WrapHeader>,
       align: 'right',
       cell: (player) =>
         contractCell(player, (contract) => (
@@ -103,7 +91,7 @@ export function SquadTable({
     },
     {
       key: 'loyalty',
-      header: 'Fim da fidelidade',
+      header: <WrapHeader>Fim da fidelidade</WrapHeader>,
       cell: (player) =>
         contractCell(player, (contract) => {
           const { date, time } = splitDateTime(contract.loyalty_until);
@@ -117,7 +105,7 @@ export function SquadTable({
     },
     {
       key: 'remaining',
-      header: 'Dias restantes',
+      header: <WrapHeader>Dias restantes</WrapHeader>,
       align: 'right',
       cell: (player) =>
         contractCell(player, (contract) =>
@@ -126,7 +114,7 @@ export function SquadTable({
     },
     {
       key: 'penalty',
-      header: '% de multa',
+      header: <WrapHeader>% de multa</WrapHeader>,
       cell: (player) =>
         contractCell(player, (contract) => (
           <PenaltyBadge rate={contract.penalty_rate} />

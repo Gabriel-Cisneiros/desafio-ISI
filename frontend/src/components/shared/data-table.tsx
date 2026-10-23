@@ -35,6 +35,10 @@ interface DataTableProps<T> {
   skeletonRows?: number;
 }
 
+export function WrapHeader({ children }: { children: ReactNode }) {
+  return <span className="whitespace-normal">{children}</span>;
+}
+
 const ALIGN = { left: 'text-left', right: 'text-right' } as const;
 
 export function DataTable<T>({
