@@ -35,6 +35,7 @@ import type { ClubDetails, SquadPlayer } from '@/lib/api/types/club';
 import { formatMoney } from '@/lib/format';
 import { type ClubTab, ClubTabs } from './club-tabs';
 import { HistoryTab } from './history-tab';
+import { LineupTab } from './lineup/lineup-tab';
 import { FREE_PLAYERS_PATH, SquadTable } from './squad-table';
 
 const MAX_SQUAD = 12;
@@ -149,11 +150,7 @@ export function ClubScreen() {
             onSell={setSelling}
           />
         ) : (
-          <StateMessage
-            icon={ClipboardList}
-            title="Escalação"
-            description="Esta seção ainda não está disponível."
-          />
+          data && <LineupTab club={data} />
         )}
       </div>
 

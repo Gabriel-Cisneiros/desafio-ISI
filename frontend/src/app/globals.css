@@ -49,6 +49,9 @@
   --chart-warning: #da7700;
   --chart-negative: #e40016;
 
+  --pitch: #0d542b;
+  --pitch-stripe: #195d36;
+
   --sidebar: #fafafa;
   --sidebar-foreground: #09090b;
   --sidebar-primary: var(--primary);
@@ -122,6 +125,8 @@
   --color-chart-positive: var(--chart-positive);
   --color-chart-warning: var(--chart-warning);
   --color-chart-negative: var(--chart-negative);
+  --color-pitch: var(--pitch);
+  --color-pitch-stripe: var(--pitch-stripe);
 
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
