@@ -45,7 +45,10 @@ export interface Crumb {
   href?: string;
 }
 
-export function getBreadcrumbs(pathname: string, clubName?: string): Crumb[] {
+export function getBreadcrumbs(
+  pathname: string,
+  detailLabel?: string,
+): Crumb[] {
   for (const group of NAV_GROUPS) {
     for (const item of group.items) {
       if (pathname === item.href) {
@@ -55,7 +58,7 @@ export function getBreadcrumbs(pathname: string, clubName?: string): Crumb[] {
         return [
           { label: group.label },
           { label: item.label, href: item.href },
-          ...(clubName ? [{ label: clubName }] : []),
+          ...(detailLabel ? [{ label: detailLabel }] : []),
         ];
       }
     }

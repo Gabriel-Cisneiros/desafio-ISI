@@ -145,6 +145,7 @@ frontend/src/
 ├── components/
 │   ├── clubs/             Lista de clubes com ordenação e criação, e página do clube com resumo, abas, elenco, escalação e histórico
 │   ├── layout/            Menu lateral, topo com breadcrumb e navegação
+│   ├── matches/           Nova partida, página da partida com placar, campo e os 6 duelos
 │   ├── market/            Compra e venda de jogador: confirmação e resultado
 │   ├── players/           Tela de jogadores: filtros, tabela, ordenação e painel de detalhes
 │   │   └── form/          Cadastro e edição de jogador (Formik e Yup)
@@ -214,6 +215,7 @@ frontend/src/
 - "Exportar CSV" pede o arquivo à API com os mesmos filtros da tela e baixa o conteúdo exatamente como veio, com o nome `historico-clube-{id}.csv`, porque a API não envia nome de arquivo. Se a API recusar, a tela mostra o `message` do JSON de erro em vez de baixar.
 - Na escalação, cada vaga oferece só jogadores do elenco da posição compatível, sem os `DOENTE` e sem quem já está em outra vaga. "Salvar escalação" só fica disponível com os 5 titulares escolhidos, e cada vaga vazia mostra a mensagem junto ao campo. A coluna "Atributos usados" e o campo são só prévias; a regra que vale é a da API.
 - Sem escalação salva, a tela começa na formação 2-1-1, sem enviar nada.
+- Depois de jogar uma partida, a tela abre a página dela com o placar e os 6 duelos como a API devolveu. A posição de cada jogador no campo e o "1º ao 4º de linha" vêm da ordem dos duelos; nenhum valor é recalculado. Clube sem escalação completa não é barrado pela tela: a recusa da API aparece dentro do modal.
 - A ordenação da lista de clubes fica na URL e é sempre pedida à API, que devolve a lista já ordenada.
 - Na edição, a idade menor que a atual é recusada na própria tela, e um jogador com clube tem as outras posições desabilitadas, pois a API recusa as duas mudanças.
 - A tela não calcula overall, valor base nem valor de mercado: depois do cadastro, mostra os valores devolvidos pela API.

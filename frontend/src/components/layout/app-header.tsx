@@ -7,10 +7,12 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { useClubs } from '@/hooks/data/clubs';
+import { useMatch } from '@/hooks/data/league';
 import { useRefreshStore } from '@/stores/refresh-store';
 import { getBreadcrumbs } from './navigation';
 
 const CLUB_PATH = /^\/clubes\/(\d+)$/;
+const MATCH_PATH = /^\/partidas\/(\d+)$/;
 const HEADER_CLASS = 'flex h-14 shrink-0 items-center gap-3 border-b px-4';
 
 export function AppHeaderFallback() {
@@ -26,7 +28,12 @@ export function AppHeader() {
     ? (clubs.data.find((club) => String(club.id) === clubId)?.name ??
       `Clube ${clubId}`)
     : undefined;
-  const crumbs = getBreadcrumbs(pathname, clubName);
+  const matchId = MATCH_PATH.exec(pathname)?.[1];
+  const match = useMatch(matchId === undefined ? undefined : Number(matchId));
+  const matchLabel = match.data
+    ? `${match.data.home.club_name} ${match.data.home.goals} × ${match.data.away.goals} ${match.data.away.club_name}`
+    : undefined;
+  const crumbs = getBreadcrumbs(pathname, clubName ?? matchLabel);
 
   return (
     <header className={HEADER_CLASS}>

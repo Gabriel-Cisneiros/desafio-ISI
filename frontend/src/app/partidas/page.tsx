@@ -1,7 +1,13 @@
+import { Suspense } from 'react';
 import type { Metadata } from 'next';
+import { MatchesScreen } from '@/components/matches/matches-screen';
 
 export const metadata: Metadata = { title: 'Partidas · Passe' };
 
 export default function MatchesPage() {
-  return <h1 className="text-2xl font-semibold tracking-tight">Partidas</h1>;
+  return (
+    <Suspense>
+      <MatchesScreen />
+    </Suspense>
+  );
 }
