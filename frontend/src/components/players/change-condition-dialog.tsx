@@ -5,6 +5,7 @@ import { CircleAlert, Lock, TriangleAlert } from 'lucide-react';
 import { cn } from 'cn';
 import { ConfirmDialog } from '@/components/shared/confirm-dialog';
 import { ConditionBadge } from '@/components/shared/condition-badge';
+import { PlayerSummary } from '@/components/shared/player-summary';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { useApiAction } from '@/hooks/use-api-action';
@@ -16,7 +17,6 @@ import { CONDITIONS, type Condition } from '@/lib/api/types/enums';
 import type { Player } from '@/lib/api/types/player';
 import { formatMoney } from '@/lib/format';
 import { CONDITION_LABELS } from '@/lib/labels';
-import { PlayerSummary } from './player-summary';
 
 const DESCRIPTIONS: Record<Condition, string> = {
   APTO: 'Sem desconto por condição.',

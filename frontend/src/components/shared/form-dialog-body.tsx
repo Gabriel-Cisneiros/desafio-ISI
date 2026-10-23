@@ -2,7 +2,7 @@
 
 import type { ReactNode } from 'react';
 import { Form, useFormikContext } from 'formik';
-import { LoaderCircle } from 'lucide-react';
+import { LoaderCircle, type LucideIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DialogDescription,
@@ -15,6 +15,7 @@ interface FormDialogBodyProps {
   title: string;
   description: string;
   submitLabel: string;
+  submitIcon?: LucideIcon;
   pending: boolean;
   onCancel: () => void;
   note?: ReactNode;
@@ -26,6 +27,7 @@ export function FormDialogBody({
   title,
   description,
   submitLabel,
+  submitIcon: SubmitIcon,
   pending,
   onCancel,
   note,
@@ -56,8 +58,10 @@ export function FormDialogBody({
           Cancelar
         </Button>
         <Button type="submit" disabled={pending}>
-          {pending && (
+          {pending ? (
             <LoaderCircle data-icon="inline-start" className="animate-spin" />
+          ) : (
+            SubmitIcon && <SubmitIcon data-icon="inline-start" />
           )}
           {submitLabel}
         </Button>

@@ -14,6 +14,11 @@ import {
   Users,
   X,
 } from 'lucide-react';
+import {
+  BuyPlayerDialog,
+  type Purchase,
+} from '@/components/market/buy-player-dialog';
+import { PurchaseResultDialog } from '@/components/market/purchase-result-dialog';
 import { StateMessage } from '@/components/shared/list-state';
 import { PageHeader } from '@/components/shared/page-header';
 import { Pagination } from '@/components/shared/pagination';
@@ -63,8 +68,6 @@ interface Chip {
   clear: Partial<PlayersFilters>;
 }
 
-const noop = () => {};
-
 export function PlayersScreen() {
   const router = useRouter();
   const pathname = usePathname();
@@ -80,6 +83,8 @@ export function PlayersScreen() {
   const [editing, setEditing] = useState<Player>();
   const [changingCondition, setChangingCondition] = useState<Player>();
   const [deleting, setDeleting] = useState<Player>();
+  const [buying, setBuying] = useState<Player>();
+  const [purchase, setPurchase] = useState<Purchase>();
 
   const clubs = useClubs();
   const clubsById = useMemo(
@@ -196,7 +201,7 @@ export function PlayersScreen() {
     onDetails: setDetailsTarget,
     onEdit: setEditing,
     onChangeCondition: setChangingCondition,
-    onBuy: noop,
+    onBuy: setBuying,
     onDelete: setDeleting,
   };
 
@@ -403,7 +408,7 @@ export function PlayersScreen() {
         onClose={() => setDetailsTarget(undefined)}
         onEdit={setEditing}
         onChangeCondition={setChangingCondition}
-        onBuy={noop}
+        onBuy={setBuying}
       />
 
       <CreatePlayerDialog
@@ -434,6 +439,19 @@ export function PlayersScreen() {
             : clubsById.get(changingCondition.club_id)
         }
         onClose={() => setChangingCondition(undefined)}
+      />
+      <BuyPlayerDialog
+        player={buying}
+        clubs={clubs.data ?? []}
+        onClose={() => setBuying(undefined)}
+        onBought={(result) => {
+          setBuying(undefined);
+          setPurchase(result);
+        }}
+      />
+      <PurchaseResultDialog
+        purchase={purchase}
+        onClose={() => setPurchase(undefined)}
       />
       <DeletePlayerDialog
         player={deleting}

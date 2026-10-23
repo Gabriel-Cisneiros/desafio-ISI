@@ -2,11 +2,11 @@
 
 import { Trash2 } from 'lucide-react';
 import { ConfirmDialog } from '@/components/shared/confirm-dialog';
+import { PlayerSummary } from '@/components/shared/player-summary';
 import { Badge } from '@/components/ui/badge';
 import { useApiAction } from '@/hooks/use-api-action';
 import { playersService } from '@/lib/api/services/players';
 import type { Player } from '@/lib/api/types/player';
-import { PlayerSummary } from './player-summary';
 
 interface DeletePlayerDialogProps {
   player: Player | undefined;

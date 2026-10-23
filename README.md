@@ -145,6 +145,7 @@ frontend/src/
 ├── components/
 │   ├── clubs/             Tela de clubes: lista com ordenação e criação
 │   ├── layout/            Menu lateral, topo com breadcrumb e navegação
+│   ├── market/            Compra de jogador: formulário e resultado
 │   ├── players/           Tela de jogadores: filtros, tabela, ordenação e painel de detalhes
 │   │   └── form/          Cadastro e edição de jogador (Formik e Yup)
 │   ├── shared/            Tabela com estados, paginação, campos e modal de formulário, ordenação, confirmação e toasts
@@ -208,6 +209,7 @@ frontend/src/
 - Com a aba "Livres", o filtro de clube fica desabilitado; com um clube filtrado, a aba "Livres" fica desabilitada. A API recusa `free=true` junto com `club_id`.
 - Nos formulários de jogador, o Yup valida cada campo isolado (obrigatório, tamanho e palavras do nome, faixas numéricas e inteiros). As regras que cruzam campos (soma dos atributos, potencial e agilidade com 35 anos ou mais) ficam na API, e o `message` da recusa aparece no aviso de erro. Os erros só aparecem depois da primeira tentativa de salvar e, a partir daí, se atualizam enquanto o usuário digita.
 - No formulário de clube, a recusa da API (nome ou sigla repetidos, limite de 20 clubes) aparece dentro do próprio modal, e o campo citado na mensagem fica destacado. A sigla vira maiúscula enquanto é digitada; a regra que cruza sigla e nome fica na API.
+- Na compra, a data e a hora do fim da fidelidade vêm de campos nativos de data e hora e são enviadas como `AAAA-MM-DDTHH:MM-03:00`, montadas a partir do texto digitado, sem converter pelo fuso do navegador. O próprio modal de compra é a confirmação: "Confirmar compra" envia o pedido e abre o resultado devolvido pela API. A recusa da API e a falta de conexão aparecem dentro do modal.
 - A ordenação da lista de clubes fica na URL e é sempre pedida à API, que devolve a lista já ordenada.
 - Na edição, a idade menor que a atual é recusada na própria tela, e um jogador com clube tem as outras posições desabilitadas, pois a API recusa as duas mudanças.
 - A tela não calcula overall, valor base nem valor de mercado: depois do cadastro, mostra os valores devolvidos pela API.
