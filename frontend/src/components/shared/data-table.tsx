@@ -32,6 +32,8 @@ interface DataTableProps<T> {
   empty: ReactNode;
   toolbar?: ReactNode;
   footer?: ReactNode;
+  footerClassName?: string;
+  emptyInline?: boolean;
   skeletonRows?: number;
 }
 
@@ -53,6 +55,8 @@ export function DataTable<T>({
   empty,
   toolbar,
   footer,
+  footerClassName,
+  emptyInline = false,
   skeletonRows = 10,
 }: DataTableProps<T>) {
   if (error) {
@@ -60,8 +64,22 @@ export function DataTable<T>({
   }
 
   const showSkeleton = loading && rows === undefined;
-  if (!showSkeleton && rows?.length === 0) {
+  const isEmpty = !showSkeleton && rows?.length === 0;
+  if (isEmpty && !emptyInline) {
     return empty;
+  }
+  const footerBlock = footer && !showSkeleton && (
+    <div className={cn('border-t px-4 py-3', footerClassName)}>{footer}</div>
+  );
+
+  if (isEmpty) {
+    return (
+      <div className="overflow-hidden rounded-xl border bg-card">
+        {toolbar && <div className="border-b px-4 py-3">{toolbar}</div>}
+        {empty}
+        {footerBlock}
+      </div>
+    );
   }
 
   return (
@@ -132,9 +150,7 @@ export function DataTable<T>({
               ))}
         </TableBody>
       </Table>
-      {footer && !showSkeleton && (
-        <div className="border-t px-4 py-3">{footer}</div>
-      )}
+      {footerBlock}
     </div>
   );
 }

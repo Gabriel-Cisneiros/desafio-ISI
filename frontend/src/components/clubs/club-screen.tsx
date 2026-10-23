@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import {
   useParams,
@@ -30,9 +30,11 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useClub } from '@/hooks/data/clubs';
+import { useTransactions } from '@/hooks/data/market';
 import type { ClubDetails, SquadPlayer } from '@/lib/api/types/club';
 import { formatMoney } from '@/lib/format';
 import { type ClubTab, ClubTabs } from './club-tabs';
+import { HistoryTab } from './history-tab';
 import { FREE_PLAYERS_PATH, SquadTable } from './squad-table';
 
 const MAX_SQUAD = 12;
@@ -54,6 +56,16 @@ export function ClubScreen() {
   const section = readSection(searchParams.get(SECTION_PARAM));
   const club = useClub(Number(id));
   const [selling, setSelling] = useState<SquadPlayer>();
+  const allTransactions = useTransactions(Number(id), {});
+  const historyPlayers = useMemo(() => {
+    const players = new Map<number, string>();
+    for (const transaction of allTransactions.data?.data ?? []) {
+      players.set(transaction.player_id, transaction.player_name);
+    }
+    return [...players]
+      .map(([playerId, name]) => ({ id: playerId, name }))
+      .sort((a, b) => a.name.localeCompare(b.name, 'pt-BR'));
+  }, [allTransactions.data]);
   const [sale, setSale] = useState<Sale>();
 
   function changeSection(next: ClubSection) {
@@ -107,7 +119,12 @@ export function ClubScreen() {
       count: data?.players.length,
     },
     { value: 'escalacao', label: 'Escalação', icon: ClipboardList },
-    { value: 'historico', label: 'Histórico', icon: History },
+    {
+      value: 'historico',
+      label: 'Histórico',
+      icon: History,
+      count: allTransactions.data?.data.length,
+    },
   ];
 
   return (
@@ -121,7 +138,9 @@ export function ClubScreen() {
         id={`club-panel-${section}`}
         aria-labelledby={`club-tab-${section}`}
       >
-        {section === 'elenco' ? (
+        {section === 'historico' ? (
+          data && <HistoryTab clubId={data.id} players={historyPlayers} />
+        ) : section === 'elenco' ? (
           <SquadTable
             players={data?.players}
             loading={club.loading}
@@ -131,8 +150,8 @@ export function ClubScreen() {
           />
         ) : (
           <StateMessage
-            icon={section === 'escalacao' ? ClipboardList : History}
-            title={section === 'escalacao' ? 'Escalação' : 'Histórico'}
+            icon={ClipboardList}
+            title="Escalação"
             description="Esta seção ainda não está disponível."
           />
         )}

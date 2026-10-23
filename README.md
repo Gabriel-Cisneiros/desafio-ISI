@@ -143,7 +143,7 @@ backend/
 frontend/src/
 ├── app/                   Rotas do App Router (uma pasta por tela)
 ├── components/
-│   ├── clubs/             Lista de clubes com ordenação e criação, e página do clube com resumo, abas e elenco
+│   ├── clubs/             Lista de clubes com ordenação e criação, e página do clube com resumo, abas, elenco e histórico
 │   ├── layout/            Menu lateral, topo com breadcrumb e navegação
 │   ├── market/            Compra e venda de jogador: confirmação e resultado
 │   ├── players/           Tela de jogadores: filtros, tabela, ordenação e painel de detalhes
@@ -210,6 +210,7 @@ frontend/src/
 - Nos formulários de jogador, o Yup valida cada campo isolado (obrigatório, tamanho e palavras do nome, faixas numéricas e inteiros). As regras que cruzam campos (soma dos atributos, potencial e agilidade com 35 anos ou mais) ficam na API, e o `message` da recusa aparece no aviso de erro. Os erros só aparecem depois da primeira tentativa de salvar e, a partir daí, se atualizam enquanto o usuário digita.
 - No formulário de clube, a recusa da API (nome ou sigla repetidos, limite de 20 clubes) aparece dentro do próprio modal, e o campo citado na mensagem fica destacado. A sigla vira maiúscula enquanto é digitada; a regra que cruza sigla e nome fica na API.
 - Na compra, a data e a hora do fim da fidelidade vêm de campos nativos de data e hora e são enviadas como `AAAA-MM-DDTHH:MM-03:00`, montadas a partir do texto digitado, sem converter pelo fuso do navegador. O próprio modal de compra é a confirmação: "Confirmar compra" envia o pedido e abre o resultado devolvido pela API. A recusa da API e a falta de conexão aparecem dentro do modal.
+- No histórico do clube, os filtros de tipo e de jogador ficam na URL e viram os parâmetros `type` e `player_id` da API. O filtro de tipo sempre mantém pelo menos um tipo marcado. A lista de jogadores do filtro vem do próprio histórico do clube, sem filtro; se a API recusar o filtro (jogador excluído), a tela mostra o `message` no lugar da tabela e dos totais.
 - A ordenação da lista de clubes fica na URL e é sempre pedida à API, que devolve a lista já ordenada.
 - Na edição, a idade menor que a atual é recusada na própria tela, e um jogador com clube tem as outras posições desabilitadas, pois a API recusa as duas mudanças.
 - A tela não calcula overall, valor base nem valor de mercado: depois do cadastro, mostra os valores devolvidos pela API.
