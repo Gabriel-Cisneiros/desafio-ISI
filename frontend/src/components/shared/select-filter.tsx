@@ -17,6 +17,7 @@ interface SelectFilterProps<T extends string | number> {
   label: string;
   icon: LucideIcon;
   allLabel: string;
+  emptyLabel?: string;
   options: { value: T; label: string }[];
   value: T | undefined;
   onChange: (value: T | undefined) => void;
@@ -27,6 +28,7 @@ export function SelectFilter<T extends string | number>({
   label,
   icon: Icon,
   allLabel,
+  emptyLabel,
   options,
   value,
   onChange,
@@ -39,7 +41,11 @@ export function SelectFilter<T extends string | number>({
       <DropdownMenuTrigger asChild disabled={disabled}>
         <Button variant="outline" className="font-normal">
           <Icon data-icon="inline-start" className="text-muted-foreground" />
-          {selected ? `${label}: ${selected.label}` : label}
+          {selected
+            ? `${label}: ${selected.label}`
+            : emptyLabel
+              ? `${label}: ${emptyLabel}`
+              : label}
           <ChevronDown
             data-icon="inline-end"
             className="text-muted-foreground"

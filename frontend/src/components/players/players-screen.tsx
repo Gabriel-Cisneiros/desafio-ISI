@@ -22,6 +22,7 @@ import { PurchaseResultDialog } from '@/components/market/purchase-result-dialog
 import { StateMessage } from '@/components/shared/list-state';
 import { PageHeader } from '@/components/shared/page-header';
 import { Pagination } from '@/components/shared/pagination';
+import { SelectFilter } from '@/components/shared/select-filter';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -56,7 +57,6 @@ import {
 import { PlayersTable } from './players-table';
 import { FREE_WITH_CLUB_MESSAGE, PlayersToolbar } from './players-toolbar';
 import { RangeFilter } from './range-filter';
-import { SelectFilter } from './select-filter';
 
 const SEARCH_DELAY_MS = 300;
 

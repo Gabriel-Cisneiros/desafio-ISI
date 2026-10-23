@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Formik, useField } from 'formik';
 import { CircleAlert, Info, Shield, Swords } from 'lucide-react';
 import { object, string } from 'yup';
+import { matchPath } from '@/components/layout/navigation';
 import { FormDialogBody } from '@/components/shared/form-dialog-body';
 import { FormField, fieldDescribedBy } from '@/components/shared/form-field';
 import { useShownError } from '@/components/shared/formik-text-field';
@@ -61,7 +62,7 @@ export function NewMatchDialog({
       title: 'Partida jogada',
       description: `${match.home.club_name} ${match.home.goals} × ${match.away.goals} ${match.away.club_name}. Placar e duelos devolvidos pela API.`,
     }),
-    onSuccess: (match) => router.push(`/partidas/${match.id}`),
+    onSuccess: (match) => router.push(matchPath(match.id)),
   });
 
   function close() {

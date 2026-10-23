@@ -36,6 +36,10 @@ export function isActivePath(pathname: string, href: string): boolean {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
+export function matchPath(id: number): string {
+  return `/partidas/${id}`;
+}
+
 export function clubPath(id: number): string {
   return `/clubes/${id}`;
 }
