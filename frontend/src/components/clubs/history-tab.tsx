@@ -6,8 +6,10 @@ import {
   Check,
   ChevronDown,
   CircleAlert,
+  Download,
   HandCoins,
   History,
+  LoaderCircle,
   ShoppingCart,
   TrendingDown,
   TrendingUp,
@@ -35,8 +37,15 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useTransactions } from '@/hooks/data/market';
+import { useApiAction } from '@/hooks/use-api-action';
+import { marketService } from '@/lib/api/services/market';
 import { TRANSACTION_TYPES, type TransactionType } from '@/lib/api/types/enums';
-import type { Transaction, TransactionSummary } from '@/lib/api/types/market';
+import type {
+  ListTransactionsQuery,
+  Transaction,
+  TransactionSummary,
+} from '@/lib/api/types/market';
+import { downloadFile } from '@/lib/download';
 import { formatMoney, formatSignedMoney, splitDateTime } from '@/lib/format';
 import { TRANSACTION_TYPE_LABELS } from '@/lib/labels';
 
@@ -174,13 +183,35 @@ export function HistoryTab({ clubId, players }: HistoryTabProps) {
   const types = readTypes(searchParams.get(TYPE_PARAM));
   const playerId = readPlayer(searchParams.get(PLAYER_PARAM));
   const filtered = types.length < TRANSACTION_TYPES.length || playerId;
-  const history = useTransactions(clubId, {
+  const query: ListTransactionsQuery = {
     type: types.length < TRANSACTION_TYPES.length ? types : undefined,
     player_id: playerId,
-  });
+  };
+  const history = useTransactions(clubId, query);
   const refused =
     history.errorStatus !== undefined && history.errorStatus < 500;
   const selectedPlayer = players.find(({ id }) => id === playerId);
+  const fileName = `historico-clube-${clubId}.csv`;
+  const filterParts = [
+    query.type &&
+      `tipo ${query.type.map((type) => TRANSACTION_TYPE_LABELS[type]).join(' e ')}`,
+    playerId !== undefined && `jogador ${selectedPlayer?.name ?? playerId}`,
+  ].filter(Boolean);
+  const exportCsv = useApiAction(
+    async () => {
+      downloadFile(await marketService.exportCsv(clubId, query), fileName);
+    },
+    {
+      errorTitle: 'Não foi possível exportar o CSV',
+      success: {
+        title: 'CSV baixado',
+        description:
+          filterParts.length > 0
+            ? `${fileName}, com o filtro de ${filterParts.join(' e ')} aplicado.`
+            : `${fileName}, sem filtros.`,
+      },
+    },
+  );
 
   function updateParams(change: (params: URLSearchParams) => void) {
     const params = new URLSearchParams(searchParams);
@@ -219,6 +250,18 @@ export function HistoryTab({ clubId, players }: HistoryTabProps) {
             momento de cada operação.
           </p>
         </div>
+        <Button
+          variant="outline"
+          disabled={exportCsv.pending}
+          onClick={() => void exportCsv.run()}
+        >
+          {exportCsv.pending ? (
+            <LoaderCircle data-icon="inline-start" className="animate-spin" />
+          ) : (
+            <Download data-icon="inline-start" />
+          )}
+          Exportar CSV
+        </Button>
       </div>
       <div className="flex flex-wrap items-center gap-2">
         <span className="mr-1 text-sm text-muted-foreground">Tipo</span>

@@ -1,3 +1,4 @@
+import { isAxiosError } from 'axios';
 import { api } from '../client';
 import type {
   BuyPlayerBody,
@@ -42,11 +43,18 @@ export const marketService = {
   async exportCsv(
     clubId: number,
     query: ListTransactionsQuery = {},
-  ): Promise<string> {
-    const { data } = await api.get<string>(
-      `/clubs/${clubId}/transactions/export`,
-      { params: transactionParams(query), responseType: 'text' },
-    );
-    return data;
+  ): Promise<Blob> {
+    try {
+      const { data } = await api.get<Blob>(
+        `/clubs/${clubId}/transactions/export`,
+        { params: transactionParams(query), responseType: 'blob' },
+      );
+      return data;
+    } catch (error) {
+      if (isAxiosError(error) && error.response?.data instanceof Blob) {
+        error.response.data = await error.response.data.text();
+      }
+      throw error;
+    }
   },
 };
