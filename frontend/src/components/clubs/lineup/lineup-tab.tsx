@@ -263,7 +263,7 @@ function LineupEditor({ club, saved }: { club: ClubDetails; saved: Lineup }) {
                           <SelectValue
                             placeholder={
                               empty
-                                ? `Sem ${slot.positions.join(' ou ')} no elenco`
+                                ? `Sem ${slot.positions.join(' ou ')} ${squad.some((candidate) => slot.positions.includes(candidate.position)) ? 'disponível' : 'no elenco'}`
                                 : 'Escolha o titular'
                             }
                           />
