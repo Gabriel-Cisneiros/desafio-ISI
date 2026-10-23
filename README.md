@@ -69,6 +69,8 @@ npm run lint          # ESLint
 npm run format:check  # Prettier, só verifica
 ```
 
+Com a API no ar, cada requisição gera uma linha de log no terminal da API, com data e hora, método, caminho e status (ex.: `GET /api/v1/players 200`), pelo `Logger` do NestJS.
+
 ### Frontend
 
 Com a API no ar:
@@ -245,8 +247,12 @@ frontend/src/
 
 ## 7. Funcionalidades não implementadas
 
-_A preencher._
+Nenhuma das funcionalidades obrigatórias ficou de fora. Dos diferenciais opcionais do frontend, não foram feitos:
+
+- a responsividade em telas de 375 px: a interface foi pensada para desktop;
+- os testes automatizados de componentes do frontend.
 
 ## 8. Uso de inteligência artificial
 
-_A preencher._
+- **Ferramenta:** Claude Code (Anthropic), no VS Code, conectado ao Jira (leitura dos cards)
+- **Como e por quê:** Depois de fazer o levantamento de requisitos e criar os card no Jira, conectei o Claude ao MCP do Jira para que ele pudesse acompanhar as funcionalidades, decidi as arquiteturas e montei grande parte do back, utilizando a ferramenta para teste das regras enquanto não tinha Swagger, no front utilizei para o design das páginas.
