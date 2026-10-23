@@ -5,7 +5,7 @@ Mercado de jogadores de uma liga de futebol fictícia: cadastro de jogadores e c
 Projeto desenvolvido para o Estudo de Caso da vaga SENAI/PE – CÓD. 237 DESENVOLVEDOR I (FULLSTACK).
 
 - **Origem da API:** `http://localhost:3000`
-- **URL do frontend:** `http://localhost:3001`
+- **URL do frontend:** `http://localhost:3001`  
 - **Documentação da API (Swagger):** `http://localhost:3000/api/docs`
 
 ## 1. Pré-requisitos
@@ -84,6 +84,18 @@ npm run start
 
 Para desenvolver, `npm run dev` sobe a interface em modo de observação, na mesma porta.
 
+### Tudo com Docker (alternativa)
+
+O caminho principal é o de cima, com `npm`. Como alternativa, um único comando na raiz do repositório sobe banco, API e interface em contêineres, aplicando as migrations na subida da API:
+
+```text
+docker compose --profile full up -d --build
+# Interface em http://localhost:3001
+# API em http://localhost:3000
+```
+
+Usa as portas 3000, 3001 e 5433, que precisam estar livres (pare a API e a interface rodadas com `npm` antes). Para parar: `docker compose --profile full down`; com `-v`, apaga também os dados do banco.
+
 Comandos de qualidade, na pasta `frontend`:
 
 ```text
@@ -110,15 +122,24 @@ Cada parte tem o seu arquivo `.env.example`, que deve ser copiado para `.env`.
 | --- | --- | --- |
 | `NEXT_PUBLIC_API_URL` | Origem da API, sem `/api/v1` | `http://localhost:3000` |
 
+### Docker Compose (perfil `full`)
+
+O Compose define as variáveis da API e da interface, sem usar os arquivos `.env`. Duas podem ser trocadas por variáveis do terminal na hora de subir:
+
+| Variável | Descrição | Padrão |
+| --- | --- | --- |
+| `CORS_ORIGIN` | Origem do frontend liberada no CORS da API | `http://localhost:3001` |
+| `NEXT_PUBLIC_API_URL` | Origem da API usada pela interface, gravada no build da imagem | `http://localhost:3000` |
+
 ## 5. Estrutura de pastas e bibliotecas
 
 ### Estrutura de pastas
 
 ```text
 .
-├── backend/             API REST (NestJS, Prisma)
-├── frontend/            Interface (Next.js, Tailwind CSS, shadcn/ui)
-└── docker-compose.yml   Banco de dados PostgreSQL
+├── backend/             API REST (NestJS, Prisma), com Dockerfile
+├── frontend/            Interface (Next.js, Tailwind CSS, shadcn/ui), com Dockerfile
+└── docker-compose.yml   Banco de dados PostgreSQL; com o perfil full, também API e interface
 
 backend/
 ├── prisma/schema.prisma   Schema do banco
@@ -203,6 +224,7 @@ frontend/src/
 
 - O PostgreSQL do Docker Compose é publicado na porta `5433` da máquina, para não conflitar com um PostgreSQL já instalado na porta padrão.
 - A API usa a porta `3000` e o frontend, a `3001`.
+- No Docker Compose, a API e a interface ficam no perfil `full`, para que `docker compose up -d db` continue subindo só o banco no caminho com `npm`. A API aplica as migrations (`prisma migrate deploy`) antes de iniciar. Como o Next.js grava `NEXT_PUBLIC_API_URL` no build, a origem da API entra como argumento de build da imagem da interface. As imagens partem só da imagem pública `node:22-alpine`.
 - Em `GET /players`, os filtros de posição, condição, clube, idade e exclusão são aplicados no banco. A busca pelo nome, a faixa de valor de mercado, a ordenação e a paginação são feitas na API, depois de calcular o valor de mercado de cada jogador com as mesmas funções usadas nas respostas. Assim a fórmula do valor de mercado existe num só lugar, e a busca sem acentos não depende de extensões do PostgreSQL.
 - Na tela de jogadores, a busca, os filtros, a aba (todos, livres ou em clubes), a ordenação e a página ficam na URL. Assim, recarregar a página, voltar no navegador ou compartilhar o link mantém a mesma lista.
 - A busca por nome é enviada 300 ms depois da última tecla e só a partir de 2 caracteres, o mínimo que a API aceita.

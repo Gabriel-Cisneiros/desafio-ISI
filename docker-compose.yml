@@ -17,5 +17,29 @@ services:
       timeout: 5s
       retries: 10
 
+  api:
+    profiles: [full]
+    build: ./backend
+    environment:
+      DATABASE_URL: postgresql://passe:passe@db:5432/passe
+      PORT: 3000
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:3001}
+    ports:
+      - "3000:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  web:
+    profiles: [full]
+    build:
+      context: ./frontend
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:3000}
+    ports:
+      - "3001:3001"
+    depends_on:
+      - api
+
 volumes:
   db_data:
