@@ -1,18 +1,24 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { LOAD_OFFLINE_MESSAGE, getErrorMessage } from '@/lib/api/errors';
+import {
+  LOAD_OFFLINE_MESSAGE,
+  getErrorMessage,
+  getErrorStatus,
+} from '@/lib/api/errors';
 import { useRefreshStore } from '@/stores/refresh-store';
 
 interface QueryState<T> {
   key: string;
   data?: T;
   error?: string;
+  errorStatus?: number;
 }
 
 export interface ApiQuery<T> {
   data: T | undefined;
   error: string | undefined;
+  errorStatus: number | undefined;
   loading: boolean;
   reload: () => void;
 }
@@ -45,6 +51,7 @@ export function useApiQuery<T>(
           key: requestKey,
           data: previous.data,
           error: getErrorMessage(error, LOAD_OFFLINE_MESSAGE),
+          errorStatus: getErrorStatus(error),
         })),
     );
     return () => {
@@ -58,6 +65,7 @@ export function useApiQuery<T>(
   return {
     data: state.data,
     error: settled ? state.error : undefined,
+    errorStatus: settled ? state.errorStatus : undefined,
     loading: enabled && !settled,
     reload,
   };

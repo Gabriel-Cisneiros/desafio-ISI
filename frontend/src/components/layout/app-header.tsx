@@ -22,7 +22,10 @@ export function AppHeader() {
   const refresh = useRefreshStore((state) => state.refresh);
   const clubId = CLUB_PATH.exec(pathname)?.[1];
   const clubs = useClubs({}, clubId !== undefined);
-  const clubName = clubs.data?.find((club) => String(club.id) === clubId)?.name;
+  const clubName = clubs.data
+    ? (clubs.data.find((club) => String(club.id) === clubId)?.name ??
+      `Clube ${clubId}`)
+    : undefined;
   const crumbs = getBreadcrumbs(pathname, clubName);
 
   return (

@@ -20,6 +20,10 @@ function readMessage(data: unknown): string | undefined {
     : undefined;
 }
 
+export function getErrorStatus(error: unknown): number | undefined {
+  return isAxiosError(error) ? error.response?.status : undefined;
+}
+
 export function isOfflineError(error: unknown): boolean {
   return isAxiosError(error) && !error.response;
 }

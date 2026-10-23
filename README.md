@@ -143,7 +143,7 @@ backend/
 frontend/src/
 ├── app/                   Rotas do App Router (uma pasta por tela)
 ├── components/
-│   ├── clubs/             Tela de clubes: lista com ordenação e criação
+│   ├── clubs/             Lista de clubes com ordenação e criação, e página do clube com resumo, abas e elenco
 │   ├── layout/            Menu lateral, topo com breadcrumb e navegação
 │   ├── market/            Compra de jogador: formulário e resultado
 │   ├── players/           Tela de jogadores: filtros, tabela, ordenação e painel de detalhes

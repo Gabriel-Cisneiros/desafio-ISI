@@ -1,7 +1,13 @@
+import { Suspense } from 'react';
 import type { Metadata } from 'next';
+import { ClubScreen } from '@/components/clubs/club-screen';
 
 export const metadata: Metadata = { title: 'Clube · Passe' };
 
 export default function ClubPage() {
-  return <h1 className="text-2xl font-semibold tracking-tight">Clube</h1>;
+  return (
+    <Suspense>
+      <ClubScreen />
+    </Suspense>
+  );
 }
