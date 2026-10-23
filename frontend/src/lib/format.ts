@@ -1,5 +1,3 @@
-export const EMPTY_VALUE = '-';
-
 const moneyFormatter = new Intl.NumberFormat('pt-BR', {
   minimumFractionDigits: 2,
   maximumFractionDigits: 2,
@@ -13,14 +11,6 @@ export function formatMoney(value: number): string {
 
 export function formatSignedMoney(value: number): string {
   return value > 0 ? `+${formatMoney(value)}` : formatMoney(value);
-}
-
-export function formatOptionalMoney(value: number | null): string {
-  return value === null ? EMPTY_VALUE : formatMoney(value);
-}
-
-export function formatPercent(value: number): string {
-  return `${value}%`;
 }
 
 export function splitDateTime(value: string): { date: string; time: string } {

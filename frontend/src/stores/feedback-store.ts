@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 
-export type FeedbackType = 'success' | 'error' | 'info';
+export type FeedbackType = 'success' | 'error';
 
 export interface FeedbackContent {
   title: string;
@@ -35,6 +35,3 @@ export const notifySuccess = (content: FeedbackContent) =>
 
 export const notifyError = (content: FeedbackContent) =>
   useFeedbackStore.getState().notify('error', content);
-
-export const notifyInfo = (content: FeedbackContent) =>
-  useFeedbackStore.getState().notify('info', content);

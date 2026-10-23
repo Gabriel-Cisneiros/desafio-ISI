@@ -21,10 +21,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { useLineup } from '@/hooks/data/league';
 import { useApiAction } from '@/hooks/use-api-action';
-import { useApiQuery } from '@/hooks/use-api-query';
 import { isOfflineError } from '@/lib/api/errors';
-import { lineupsService } from '@/lib/api/services/lineups';
 import { marketService } from '@/lib/api/services/market';
 import type { Club, SquadPlayer } from '@/lib/api/types/club';
 import type { SaleResult } from '@/lib/api/types/market';
@@ -76,9 +75,7 @@ function SellContent({
   onSold,
 }: SellPlayerDialogProps & { player: SquadPlayer }) {
   const [error, setError] = useState<SellError>();
-  const lineup = useApiQuery(['lineup', club.id], () =>
-    lineupsService.get(club.id),
-  );
+  const lineup = useLineup(club.id);
   const starter =
     lineup.data?.players.some((item) => item.id === player.id) ?? false;
   const sell = useApiAction(() => marketService.sell(player.id), {

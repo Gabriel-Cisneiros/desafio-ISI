@@ -8,9 +8,8 @@ import { ConditionBadge } from '@/components/shared/condition-badge';
 import { PlayerSummary } from '@/components/shared/player-summary';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
+import { useLineup } from '@/hooks/data/league';
 import { useApiAction } from '@/hooks/use-api-action';
-import { useApiQuery } from '@/hooks/use-api-query';
-import { lineupsService } from '@/lib/api/services/lineups';
 import { playersService } from '@/lib/api/services/players';
 import type { Club } from '@/lib/api/types/club';
 import { CONDITIONS, type Condition } from '@/lib/api/types/enums';
@@ -57,11 +56,7 @@ function ConditionForm({
 }: ChangeConditionDialogProps & { player: Player }) {
   const [condition, setCondition] = useState<Condition>();
   const [error, setError] = useState<string>();
-  const lineup = useApiQuery(
-    ['lineup', player.club_id],
-    () => lineupsService.get(player.club_id!),
-    player.club_id !== null,
-  );
+  const lineup = useLineup(player.club_id);
   const starter =
     lineup.data?.players.some((item) => item.id === player.id) ?? false;
   const update = useApiAction(

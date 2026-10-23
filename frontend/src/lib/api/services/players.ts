@@ -16,11 +16,6 @@ export const playersService = {
     return data;
   },
 
-  async get(id: number): Promise<Player> {
-    const { data } = await api.get<Player>(`/players/${id}`);
-    return data;
-  },
-
   async create(body: CreatePlayerBody): Promise<Player> {
     const { data } = await api.post<Player>('/players', body);
     return data;

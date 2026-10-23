@@ -11,7 +11,3 @@ export function usePlayers(query: ListPlayersQuery, enabled = true) {
     enabled,
   );
 }
-
-export function usePlayer(id: number) {
-  return useApiQuery(['player', id], () => playersService.get(id));
-}

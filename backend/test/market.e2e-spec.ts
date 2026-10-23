@@ -538,7 +538,7 @@ describe('Mercado (e2e)', () => {
       expect(response.body).toEqual({ data: [], summary: zeroSummary });
     });
 
-    it.each([
+    it.each<Record<string, string>>([
       { type: 'compra' },
       { type: 'COMPRA,COMPRA' },
       { type: 'COMPRA, VENDA' },

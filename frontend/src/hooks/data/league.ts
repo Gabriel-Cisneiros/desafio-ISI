@@ -6,8 +6,12 @@ import { standingsService } from '@/lib/api/services/standings';
 import type { ListMatchesQuery } from '@/lib/api/types/league';
 import { useApiQuery } from '../use-api-query';
 
-export function useLineup(clubId: number) {
-  return useApiQuery(['lineup', clubId], () => lineupsService.get(clubId));
+export function useLineup(clubId: number | null) {
+  return useApiQuery(
+    ['lineup', clubId],
+    () => lineupsService.get(clubId!),
+    clubId !== null,
+  );
 }
 
 export function useMatches(query: ListMatchesQuery = {}) {

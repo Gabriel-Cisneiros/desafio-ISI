@@ -32,8 +32,8 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { useLineup } from '@/hooks/data/league';
 import { useApiAction } from '@/hooks/use-api-action';
-import { useApiQuery } from '@/hooks/use-api-query';
 import { lineupsService } from '@/lib/api/services/lineups';
 import type { ClubDetails, SquadPlayer } from '@/lib/api/types/club';
 import type { Formation } from '@/lib/api/types/enums';
@@ -61,9 +61,7 @@ interface LineupTabProps {
 }
 
 export function LineupTab({ club }: LineupTabProps) {
-  const lineup = useApiQuery(['lineup', club.id], () =>
-    lineupsService.get(club.id),
-  );
+  const lineup = useLineup(club.id);
 
   if (lineup.error && !lineup.data) {
     return (

@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { CircleCheck, CircleX, Info, X } from 'lucide-react';
+import { CircleCheck, CircleX, X } from 'lucide-react';
 import { cn } from 'cn';
 import {
   type Feedback,
@@ -11,16 +11,14 @@ import {
 
 export const TOAST_DURATION_MS = 5000;
 
-const ICONS: Record<FeedbackType, typeof Info> = {
+const ICONS: Record<FeedbackType, typeof CircleCheck> = {
   success: CircleCheck,
   error: CircleX,
-  info: Info,
 };
 
 const ICON_COLORS: Record<FeedbackType, string> = {
   success: 'text-success',
   error: 'text-destructive',
-  info: 'text-foreground',
 };
 
 function Toast({ item }: { item: Feedback }) {
