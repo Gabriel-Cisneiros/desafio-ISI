@@ -32,7 +32,9 @@ export function AppHeader() {
   const match = useMatch(matchId === undefined ? undefined : Number(matchId));
   const matchLabel = match.data
     ? `${match.data.home.club_name} ${match.data.home.goals} × ${match.data.away.goals} ${match.data.away.club_name}`
-    : undefined;
+    : match.error
+      ? `Partida ${matchId}`
+      : undefined;
   const crumbs = getBreadcrumbs(pathname, clubName ?? matchLabel);
 
   return (

@@ -140,7 +140,7 @@ export function ClubScreen() {
         aria-labelledby={`club-tab-${section}`}
       >
         {section === 'historico' ? (
-          data && <HistoryTab clubId={data.id} players={historyPlayers} />
+          <HistoryTab clubId={Number(id)} players={historyPlayers} />
         ) : section === 'elenco' ? (
           <SquadTable
             players={data?.players}
